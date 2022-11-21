@@ -1,0 +1,18 @@
+services:
+  server:
+    build:
+      context: ./server
+    ports:
+      - 3000:3000
+    env_file:
+      - .env.development
+    depends_on:
+      - mongo
+    volumes:
+      - ./server/public/:/app/public/
+  mongo:
+    image: mongo:latest
+    env_file:
+      - .env.development
+    volumes:
+      - ./mongo_data/:/data/db/
