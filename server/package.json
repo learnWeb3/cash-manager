@@ -19,8 +19,7 @@
   },
   "homepage": "https://github.com/EpitechMscProPromo2024/T-DEV-700-MAR_11#readme",
   "dependencies": {
-    "@types/multer": "^1.4.7",
-    "bcrypt": "^5.0.1",
+    "bcrypt": "^5.1.0",
     "content-filter": "^1.1.2",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
@@ -29,13 +28,16 @@
     "express-unless": "^1.0.0",
     "fs-extra": "^10.1.0",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.2.3",
+    "mongoose": "^6.7.2",
+    "mongoose-id-validator": "^0.6.0",
     "multer": "^1.4.4",
     "validator": "^13.7.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.14",
+    "@types/jsonwebtoken": "^8.5.9",
     "@types/mkdirp": "^1.0.2",
+    "@types/multer": "^1.4.7",
     "@types/node": "^18.8.3",
     "@types/ws": "^8.5.3",
     "cross-env": "^7.0.3",

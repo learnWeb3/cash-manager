@@ -1,0 +1,12 @@
+.sidebar-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 80px;
+    height: 100%;
+    gap: 80px;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    background: #ffffff;
+}

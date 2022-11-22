@@ -2,17 +2,24 @@ services:
   server:
     build:
       context: ./server
+    container_name: server
     ports:
       - 3000:3000
     env_file:
-      - .env.development
+      - .server.env.development
     depends_on:
       - mongo
     volumes:
       - ./server/public/:/app/public/
+      - ./server/src/:/app/src/
+    command: npm run dev
   mongo:
     image: mongo:latest
+    container_name: mongo
+    ports:
+      - 27017:27017
     env_file:
-      - .env.development
+      - .server.env.development
     volumes:
-      - ./mongo_data/:/data/db/
+      - ./mongo_data/:/data/db
+      - ./mongo_data/:/data/configdb
