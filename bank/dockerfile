@@ -1,0 +1,17 @@
+FROM node:alpine
+
+RUN apk add --no-cache tini
+
+WORKDIR /app
+
+COPY ./package*.json .
+
+RUN npm install --loglevel verbose
+
+COPY . .
+
+RUN npm run build
+
+ENTRYPOINT ["/sbin/tini", "--"]
+
+CMD ["node", "./build/main.js"]
