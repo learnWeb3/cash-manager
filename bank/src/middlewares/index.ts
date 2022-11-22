@@ -1,5 +1,6 @@
 import { env } from "../services/env.service";
-import { BadRequestError } from "../errors";
+import { BadRequestError, UnauthorizedError } from "../errors";
+import { User } from '../models/user.model';
 
 /**
  *
@@ -149,6 +150,32 @@ export function parseJWTToken(
         return next();
     };
 }
+
+export function roleGuard(options = {
+    authorizedRoles: [],
+    userLocalsProperty: "userId"
+}) {
+    const { authorizedRoles, userLocalsProperty } = options
+    return function (req, res, next) {
+        const tokenSubClaim = res.locals[userLocalsProperty] || null
+        if (tokenSubClaim) {
+            User.findOne({
+                _id: tokenSubClaim
+            }).then((userModel) => {
+                if (authorizedRoles.includes(userModel.role)) {
+                    next();
+                } else {
+                    throw new UnauthorizedError('You do not have the rights to perform this action please contact your administrator in order to access this ressource')
+                }
+            }).catch((error) => {
+                throw new UnauthorizedError('You do not have the rights to perform this action please contact your administrator in order to access this ressource')
+            })
+        } else {
+            throw new UnauthorizedError('You do not have the rights to perform this action please contact your administrator in order to access this ressource')
+        }
+    }
+}
+
 
 export function authorizeQueryParams(authorizedParametersObject = {}) {
     return function (req, res, next) {
