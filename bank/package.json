@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "gen-rsa": "cross-env NODE_ENV=production npm run build && node ./build/scripts/gen-rsa.js",
+    "sign-tx": "cross-env NODE_ENV=production npm run build && node ./build/scripts/sign-tx.js",
     "start": "cross-env NODE_ENV=production npm run build && node ./build/main.js",
     "seed": "cross-env NODE_ENV=production npm run build && node ./build/seed/index.js",
     "dev": "cross-env NODE_ENV=development nodemon",

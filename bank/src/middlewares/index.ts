@@ -1,6 +1,7 @@
 import { env } from "../services/env.service";
 import { BadRequestError, UnauthorizedError } from "../errors";
 import { User } from '../models/user.model';
+import { ValidatorFunction } from "../validators";
 
 /**
  *
@@ -11,82 +12,26 @@ import { User } from '../models/user.model';
  * @returns
  */
 export function errorHandler(err: any, req: any, res: any, next: any) {
-    const errorMessage = err.message;
     const { path } = req;
-    if (err?.constructor?.name) {
-        const errorType = err.constructor.name;
-        switch (errorType) {
-            case "ForbiddenError":
-                res.status(403);
-                res.json({
-                    status: "error",
-                    statusCode: 403,
-                    statusMessage: "Forbidden",
-                    message: errorMessage,
-                    path,
-                });
-                return;
-            case "UnauthorizedError":
-                res.status(401);
-                res.json({
-                    status: "error",
-                    statusCode: 401,
-                    statusMessage: "Unauthorized",
-                    message: errorMessage,
-                    path,
-                });
-                return;
-            case "NotFoundError":
-                res.status(400);
-                res.json({
-                    status: "error",
-                    statusCode: 404,
-                    statusMessage: "Not found !",
-                    message: errorMessage,
-                    path,
-                });
-                return;
-            case "BadRequestError":
-                res.status(400);
-                res.json({
-                    status: "error",
-                    statusCode: 400,
-                    statusMessage: "Bad request",
-                    message: errorMessage,
-                    path,
-                });
-                return;
-            case "ValidationError":
-                res.status(400);
-                res.json({
-                    status: "error",
-                    statusCode: 400,
-                    statusMessage: "Bad request",
-                    message: errorMessage,
-                    path,
-                });
-                return;
-            default:
-                res.status(500);
-                res.json({
-                    status: "error",
-                    statusCode: 500,
-                    statusMessage: "Internal Server Error",
-                    message: errorMessage,
-                    path,
-                });
-                return;
-        }
-    } else {
+    try {
+        const { statusCode, statusMessage, message } = err
+        res.status(statusCode);
+        res.json({
+            status: "error",
+            statusCode: statusCode,
+            statusMessage: statusMessage,
+            message: message,
+            path,
+        });
+    } catch (error) {
         res.status(500);
         res.json({
             status: "error",
             statusCode: 500,
             statusMessage: "Internal Server Error",
-            message: errorMessage,
+            message: err.message,
             path,
         });
-        return;
     }
 }
 
@@ -165,13 +110,13 @@ export function roleGuard(options = {
                 if (authorizedRoles.includes(userModel.role)) {
                     next();
                 } else {
-                    throw new UnauthorizedError('You do not have the rights to perform this action please contact your administrator in order to access this ressource')
+                    next(new UnauthorizedError('You do not have the rights to perform this action please contact your administrator in order to access this ressource'))
                 }
             }).catch((error) => {
-                throw new UnauthorizedError('You do not have the rights to perform this action please contact your administrator in order to access this ressource')
+                next(new UnauthorizedError('You do not have the rights to perform this action please contact your administrator in order to access this ressource'))
             })
         } else {
-            throw new UnauthorizedError('You do not have the rights to perform this action please contact your administrator in order to access this ressource')
+            next(new UnauthorizedError('You do not have the rights to perform this action please contact your administrator in order to access this ressource'))
         }
     }
 }
@@ -222,7 +167,9 @@ export function authorizeBodyParams(authorizedParametersObject = {}) {
     };
 }
 
-export function validateBodyParams(parametersValidationMapping = {}) {
+export function validateBodyParams(parametersValidationMapping: {
+    [key: string]: ValidatorFunction
+}) {
     return function (req, res, next) {
         const { body } = req;
         if (body) {
@@ -230,7 +177,7 @@ export function validateBodyParams(parametersValidationMapping = {}) {
             for (const key in body) {
                 if (parametersValidationMapping.hasOwnProperty(key)) {
                     const { errors: parameterErrors, valid: parameterIsValid } =
-                        parametersValidationMapping[key](body[key]);
+                        parametersValidationMapping[key](key, body[key]);
                     if (!parameterIsValid) {
                         errors.push(`${key}: ${parameterErrors.join(", ")}`);
                     }
@@ -264,6 +211,7 @@ export function requireBodyParams(requiredParametersObject = {}) {
                     )
                 );
             }
+            return next();
         } else {
             return next(
                 new BadRequestError(

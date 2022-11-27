@@ -5,7 +5,7 @@ const { Types: { ObjectId } } = Schema
 
 export interface IUserAccount {
     user: Schema.Types.ObjectId,
-    account: Schema.Types.ObjectId
+    account: Schema.Types.ObjectId,
 }
 
 export interface UserAccountModel extends Model<IUserAccount, {}> {
@@ -15,11 +15,13 @@ export interface UserAccountModel extends Model<IUserAccount, {}> {
 const userAcountSchema = new Schema({
     user: {
         type: ObjectId,
-        required: true
+        required: true,
+        ref: 'User'
     },
     account: {
         type: ObjectId,
-        required: true
+        required: true,
+        ref: 'Account'
     }
 }, {
     toJSON: { virtuals: true },

@@ -5,9 +5,11 @@ import { env } from '../services/env.service';
 import { ForbiddenError } from '../errors/index';
 import bcrypt from 'bcrypt'
 import * as nanoid from 'nanoid'
-import { jwt } from 'express-jwt';
+import * as jwt from 'jsonwebtoken';
+import { Account } from "./account.model";
+import { UserAccount } from './user_account.model';
 
-const { String } = Schema.Types
+const { String, Boolean, Number } = Schema.Types
 
 
 export interface IUser {
@@ -20,6 +22,7 @@ export interface IUser {
     address: string;
     postcode: string;
     country: string;
+    deleted: boolean;
 }
 
 export interface IUserMethods {
@@ -27,6 +30,8 @@ export interface IUserMethods {
     passwordVerify: (textPassword: string) => Promise<boolean>,
     generateResetPasswordToken: () => HydratedDocument<IUser, {}, IUserMethods>,
     encodeJWT: () => string,
+    registerAccount: () => Promise<HydratedDocument<IUser, {}, IUserMethods>>,
+    listAccounts: () => Promise<HydratedDocument<IUser, {}, IUserMethods>>,
 }
 
 export interface UserModel extends Model<IUser, {}, IUserMethods> {
@@ -44,6 +49,19 @@ export interface UserModel extends Model<IUser, {}, IUserMethods> {
         address: string,
         postcode: string,
         country: string,
+        role: number,
+    }) => Promise<HydratedDocument<IUser, {}, IUserMethods>>
+
+    updateModel: (user: HydratedDocument<IUser, {}, IUserMethods>, data: {
+        email?: string,
+        password?: string,
+        firstname?: string,
+        lastname?: string,
+        address?: string,
+        postcode?: string,
+        country?: string,
+        role?: number,
+        deleted?: boolean
     }) => Promise<HydratedDocument<IUser, {}, IUserMethods>>
 }
 
@@ -56,7 +74,8 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>({
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        unique: true,
     },
     password: {
         type: String,
@@ -85,6 +104,11 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>({
     country: {
         type: String,
         required: true
+    },
+    deleted: {
+        type: Boolean,
+        required: false,
+        default: false
     }
 }, {
     toJSON: { virtuals: true },
@@ -109,20 +133,6 @@ userSchema.virtual("receivedTransactions", {
     localField: '_id',
     foreignField: 'to',
 })
-
-
-userSchema.pre('find', function () {
-    this.populate('accounts');
-    this.populate('receivedTransactions')
-    this.populate('sentTransactions')
-});
-
-userSchema.pre('findOne', function () {
-    this.populate('accounts');
-    this.populate('receivedTransactions')
-    this.populate('sentTransactions')
-});
-
 
 
 userSchema.method('hashPassword', async function () {
@@ -172,6 +182,55 @@ userSchema.method('encodeJWT', function encodeJWT(): string {
     return jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_EXP * 1000 });
 });
 
+userSchema.method('listAccounts', async function () {
+    return await this.populate({
+        path: 'accounts', populate: {
+            path: 'account'
+        }
+    })
+})
+
+userSchema.method('registerAccount', async function () {
+    let newAccount = new Account()
+    newAccount = await newAccount.save();
+    const newUserAccount = new UserAccount({
+        user: this.id,
+        account: newAccount.id
+    });
+    await newUserAccount.save()
+    return await this.populate({
+        path: 'accounts', populate: {
+            path: 'account'
+        }
+    })
+})
+
+userSchema.static('updateModel', async function (user: HydratedDocument<IUser, {}, IUserMethods>, data = {
+    email: null,
+    password: null,
+    firstname: null,
+    lastname: null,
+    address: null,
+    postcode: null,
+    country: null,
+    role: null,
+    deleted: null
+}): Promise<HydratedDocument<IUser, {}, IUserMethods>> {
+
+    Object.assign(user, data);
+    const validate = user.validateSync();
+    if (validate !== undefined) {
+        throw new BadRequestError(`Validation error: ${validate.message}`);
+    }
+
+    if (data.password) {
+        user = await user.hashPassword();
+    }
+
+    return await user.save()
+
+})
+
 userSchema.static('login', async function (
     data = {
         email: null,
@@ -183,6 +242,7 @@ userSchema.static('login', async function (
         const user = await this.findOne({
             email,
         });
+
         if (!user) {
             throw new BadRequestError("invalid credentials");
         }
@@ -194,6 +254,7 @@ userSchema.static('login', async function (
         }
 
         const token = user.encodeJWT();
+
         return {
             token,
         };
@@ -208,10 +269,11 @@ userSchema.static('register', async function (
         lastname: null,
         address: null,
         postcode: null,
-        country: null
+        country: null,
+        role: null
     }
-) {
-    const userRole = roles.USER;
+): Promise<HydratedDocument<IUser, {}, IUserMethods>> {
+    const userRole = data.role || roles.USER;
 
     let newUser = new User({
         ...data,
@@ -228,9 +290,8 @@ userSchema.static('register', async function (
 
     newUser = await newUser.hashPassword();
 
-    const test = await newUser.save()
+    return await newUser.save()
 
-    return test
 });
 
 export const User = model<IUser, UserModel>('User', userSchema)
