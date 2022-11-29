@@ -3,7 +3,7 @@ import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 generateKeyPair('rsa', {
-    modulusLength: 2048,
+    modulusLength: 512,
     publicKeyEncoding: {
         type: 'spki',
         format: 'pem'
