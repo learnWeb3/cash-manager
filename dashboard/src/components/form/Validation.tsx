@@ -3,7 +3,7 @@ import { InputValue, InputProps } from './inputs/IInputs';
 
 type ValidatorType = (value?: InputValue) => string | undefined;
 
-const withValidation = (InputComponent: React.ComponentType<InputProps>, validators: ValidatorType[] = []) => {
+const withValidation = (InputComponent: React.ComponentType<InputProps>, validators: ValidatorType[] = [], submited = true) => {
 	
 	return class InputWithValidation extends React.Component<InputProps> {
 		render() {

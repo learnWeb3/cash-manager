@@ -1,7 +1,7 @@
 services:
+
   server:
-    build:
-      context: ./server
+    build: ./server
     container_name: server
     ports:
       - 3000:3000
@@ -13,6 +13,21 @@ services:
       - ./server/public/:/app/public/
       - ./server/src/:/app/src/
     command: npm run dev
+  
+  dashboard:
+    build: ./dashboard
+    container_name: dashboard
+    ports:
+      - 3000:80
+    env_file:
+      - .server.env.development
+    depends_on:
+      - mongo
+    volumes:
+      - ./server/public/:/app/public/
+      - ./server/src/:/app/src/
+    command: npm run start
+    
   mongo:
     image: mongo:latest
     container_name: mongo

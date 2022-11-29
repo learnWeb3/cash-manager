@@ -20,7 +20,6 @@ export default {
     },
 
     async refreshToken(refreshToken: string) {
-        
         const session = await SessionModel.findOne({refreshToken: refreshToken})
                                         .select({user: 1})
         if (!session)

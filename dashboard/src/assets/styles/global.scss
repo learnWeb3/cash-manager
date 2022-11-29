@@ -1,0 +1,54 @@
+$defaultBackground: #ECEFF2;
+$bleuBackground: #1A5075;
+
+@font-face {
+    font-family: 'CGFont';
+    src: url('../fonts/century-gothic.ttf') format('truetype');
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: 'CGFont';
+    src: url('../fonts/century-gothic-bold.ttf') format('truetype');
+    font-weight: bold;
+}
+
+#root {
+    display: flex;
+    flex-direction: row;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: $defaultBackground;
+    overflow-x: hidden;
+}
+  
+body {
+    margin: 0;
+    font-family: 'CGFont';
+    width: 100%;
+    height: 100%;
+}
+
+h5 {
+    font-weight: normal;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+    color: $bleuBackground;
+}
+
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}

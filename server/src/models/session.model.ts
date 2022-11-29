@@ -10,6 +10,7 @@ import env from '../services/env.service';
 const sessionSchema = new Schema<ISessionDocument>({
 	refreshToken: {
 		type: String,
+		unique: true,
 		required: [true, APIErrorType.SESSION_INVALID_TOKEN]
 	},
 	user: {

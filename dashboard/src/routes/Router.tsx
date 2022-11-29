@@ -15,7 +15,7 @@ const AppRouter = () => {
 					<Route path="/dashboard" element={<Dashboard />} />
 				</Route>
 
-				<Route element={<ProtectedRoute requireAuth={false} requireAdmin={false} redirectPath={'dashbaord'} />}>
+				<Route element={<ProtectedRoute requireAuth={false} redirectPath={'dashboard'} />}>
 					<Route path="/login" element={<Login />} />
 					<Route path="/register" element={<Register />} />
 				</Route>

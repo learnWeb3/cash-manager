@@ -6,6 +6,7 @@ const usersRouter = express.Router();
 
 usersRouter
     .use(bearerTokenHandler)
+    .get('/', userController.getAll)
     .get('/:id', userController.get)
     .post('/confirmEmail', userController.confirmEmail)
     .post('/resetPassword', userController.resetPassword)

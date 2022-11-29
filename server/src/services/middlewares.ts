@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { MongoServerError } from 'mongodb';
+import {MongoServerError } from 'mongodb';
 import { Error as MongooseError } from 'mongoose';
 import { SessionModel } from '../models';
 import { HttpException, APIErrorType, IAPIError, IErrorCode } from './errors.service';
@@ -54,8 +54,8 @@ export const bearerTokenHandler = async(req: Request, res: Response, next: NextF
         res.locals.decoded = decoded;
         return next();
     } catch(err) {
-        // if (err.message == "jwt expired")
-            // return next(new HttpException(401, 'Your token has expired'));
+        if ((err as Error).message == "jwt expired")
+            return next(new HttpException(401, APIErrorType.SESSION_TOKEN_EXPIRED));
         return next(new HttpException(401, APIErrorType.SESSION_INVALID_TOKEN));
     }
 }
