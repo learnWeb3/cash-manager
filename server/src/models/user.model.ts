@@ -1,47 +1,62 @@
-import { Schema, model, ObjectId } from 'mongoose';
+import { Schema, model } from 'mongoose';
+import { APIErrorType } from '../services/errors.service';
 import idValidator from 'mongoose-id-validator';
 import bcrypt from 'bcrypt';
-
 import { IUserDocument, IUserModel } from '../types/IUser';
 
 const userSchema = new Schema<IUserDocument>({
-	firstname: {
-		type: String,
-		required: [true, "USER_INVALID_FIRSTNAME"],
-		trim: true,
-		lowercase: true,
-		minLength: [3, "USER_INVALID_FIRSTNAME"],
-		maxLength: [15, "USER_INVALID_FIRSTNAME"],
-		match: [/^[a-zA-Z]+$/, "USER_INVALID_FIRSTNAME"]
+	name: {
+		first: {
+			type: String,
+			required: APIErrorType.USER_INVALID_FIRSTNAME,
+			trim: true,
+			lowercase: true,
+			minLength: [3, APIErrorType.USER_INVALID_FIRSTNAME],
+			maxLength: [15, APIErrorType.USER_INVALID_FIRSTNAME],
+			match: [/^[a-zA-Z]+$/, APIErrorType.USER_INVALID_FIRSTNAME]
+		},
+		last: {
+			type: String,
+			required: APIErrorType.USER_INVALID_LASTNAME,
+			trim: true,
+			lowercase: true,
+			minLength: [3, APIErrorType.USER_INVALID_LASTNAME],
+			maxLength: [15, APIErrorType.USER_INVALID_LASTNAME],
+			match: [/^[a-zA-Z]+$/, APIErrorType.USER_INVALID_LASTNAME]
+		}
 	},
-	lastname: {
+	role: {
 		type: String,
-		required: [true, "USER_INVALID_LASTNAME"],
-		trim: true,
-		lowercase: true,
-		minLength: [3, "USER_INVALID_LASTNAME"],
-		maxLength: [15, "USER_INVALID_LASTNAME"],
-		match: [/^[a-zA-Z]+$/, "USER_INVALID_LASTNAME"]
+		enum : ['COMPANY_ADMIN','ADMIN', 'EMPLOYEE'],
+		default: 'COMPANY_ADMIN'
 	},
 	email: {
-		type: String,
-		trim: true,
-		lowercase: true,
-		unique: true,
-		required: [true, "USER_INVALID_ADRESSE"]
+		address: {
+            type: String,
+            trim: true,
+			lowercase: true,
+			unique: true,
+			required: APIErrorType.USER_INVALID_EMAIL_ADRESSE,
+        },
+		activate: {
+            type: Boolean,
+			default: false
+        }
 	},
 	password: {
 		type: String,
-		minLength: [8, "USER_INVALID_PASSWORD"],
-		required: [true, "USER_INVALID_PASSWORD"]
+		minLength: [8, APIErrorType.USER_INVALID_PASSWORD],
+		required: [true, APIErrorType.USER_INVALID_PASSWORD]
 	},
-	reset_password_token: {
+	address: {
 		type: String,
-		default: null
+		require: false,
 	},
-	role_id: {
-		type: Schema.Types.Number,
-		default: 0
+	phone: {
+		type: String,
+		required: false,
+		trim: true,
+		match: [/^[0-9]+$/, APIErrorType.USER_INVALID_PHONE_SYNTAX]
 	}
 });
 
@@ -49,28 +64,17 @@ userSchema.plugin(idValidator);
 
 userSchema.statics.createUser = async function(firstName: string, lastName: string, email: string, password: string) {
 	const userModel = new User({
-		firstname: firstName,
-		lastname: lastName,
-		email: email,
+		name: {
+			first: firstName,
+			last: lastName
+		},
+		email: {
+			address: email
+		},
 		password: password
 	});
 	userModel.hashPassword();
 	return await userModel.save();
-};
-
-userSchema.statics.getById = async function(id: string | ObjectId) {
-	const user = await User.findById(id)
-								.select({__v: 0, updatedAt: 0, password: 0})
-								.lean();
-	if (!user)
-		throw new Error(`User ${id} not found in database..`)
-	return user;
-} 
-
-userSchema.methods.deleteUser = async function(current_password: string) {
-	if (!this.comparePassword(current_password))
-		throw new Error('User password doesn\'t match')	
-	await User.deleteOne({_id: this._id});
 };
 
 userSchema.methods.fullName = function() {
@@ -78,17 +82,14 @@ userSchema.methods.fullName = function() {
 };
 
 userSchema.methods.hashPassword = function() {
-	try {
-		const salt = bcrypt.genSaltSync(10);	
-		this.password = bcrypt.hashSync(this.password, salt);
-	} catch(err) {
-		console.log('hashPassword', err);
-	}
+	const salt = bcrypt.genSaltSync(10);
+	this.password = bcrypt.hashSync(this.password, salt);
 };
 
 userSchema.methods.comparePassword = function(password: string) {
 	return bcrypt.compareSync(password, this.password);
 };
+  
 
 const User = model<IUserDocument, IUserModel>('User', userSchema);
 

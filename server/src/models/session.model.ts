@@ -1,68 +1,88 @@
-// import { Model, Schema, Types, model, Document } from 'mongoose';
-// import { APIErrorType } from '../services/errors.service';
-// import idValidator from 'mongoose-id-validator';
-// import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
+import { Schema, Types, model } from 'mongoose';
+import idValidator from 'mongoose-id-validator';
+import jsonwebtoken, { JwtPayload, VerifyErrors } from 'jsonwebtoken';
+import crypto from 'crypto';
 
-// const SESSION_SECRET: string = process.env.SESSION_SECRET || "";
+import { ISession, ISessionDocument, ISessionModel, DecodedToken } from '../types/ISession';
+import { APIErrorType } from '../services/errors.service';
+import env from '../services/env.service';
 
-// interface IJWTToken {
-//     value: String;
-//     user: Schema.Types.ObjectId;
-// 	ip: String
-// }
+const sessionSchema = new Schema<ISessionDocument>({
+	refreshToken: {
+		type: String,
+		required: [true, APIErrorType.SESSION_INVALID_TOKEN]
+	},
+	user: {
+		type: Schema.Types.ObjectId,
+		ref: 'User',
+		required: [true, APIErrorType.SESSION_INVALID_TOKEN]
+	},
+	devices: [{
+		userAgent: {
+			type: String,
+			required: [true, APIErrorType.SESSION_INVALID_USER_AGENT]
+		},
+		ip: {
+			type: String,
+			required: [true, APIErrorType.SESSION_INVALID_TOKEN]
+		}
+	}],
+}, {
+	collection: 'session',
+	timestamps: true 
+});
 
-// interface IJWTTokenDocument extends IJWTToken, Document {
-// 	sign(time: string): string;
-// }
+sessionSchema.plugin(idValidator);
+
+sessionSchema.statics.createSession = async(userId: Types.ObjectId, userAgent, userIp: string): Promise<ISession> => {
+	const token = new Session({
+		refreshToken: crypto.randomBytes(64).toString('hex'),
+		user: userId,
+		devices: [{
+			userAgent: userAgent,
+			ip: userIp
+		}]
+	});
+	await token.save();
+	return {
+		accessToken: await token.sign(),
+		refreshToken: token._doc.refreshToken,
+		user: token._doc.user._id,
+		devices: token._doc.devices
+	}
+};
+
+sessionSchema.methods.refresh = async function(): Promise<ISession> {
+	this.refreshToken = crypto.randomBytes(64).toString('hex');
+	await this.save();
+	return {
+		accessToken: await this.sign(),
+		refreshToken: this.refreshToken,
+		user: this.user,
+		devices: this.devices
+	}
+};
+
+sessionSchema.statics.decode = async function(token: string): Promise<DecodedToken> {
+	return await new Promise((resolve, reject) => 
+		jsonwebtoken.verify(token, env.SESSION_SECRET, (err, decoded) => err ? reject(err) : resolve(decoded as DecodedToken))
+	);
+}
+
+sessionSchema.methods.sign = async function(): Promise<string> {
+	await this.populate({path: 'user', select: { _id: 1, role: 1 }});
+	return jsonwebtoken.sign({
+		session: this._id.toString(),
+		_id: this.user._doc._id.toString(),
+		role: this.user._doc.role
+	}, env.SESSION_SECRET, { expiresIn: env.SESSION_EXPIRE });
+};
+
+
+
+sessionSchema.methods.newIpAddress = function() {
+	// return jsonwebtoken.sign(this.user._doc, env.SESSION_SECRET, { expiresIn: env.SESSION_EXPIRE });
+};
   
-// interface JWTTokenModel extends Model<IJWTTokenDocument> {
-// 	createToken(user: IJWTToken): Promise<IJWTTokenDocument>;
-// 	decode(token: string): Promise<JwtPayload>;
-// };
-
-// const jwtSchema = new Schema<IJWTTokenDocument>({
-// 	value: {
-// 		type: String,
-// 		required: [true, APIErrorType.JTWTOKEN_INVALID_VALUE]
-// 	},
-// 	user: {
-// 		type: Schema.Types.ObjectId,
-// 		ref: 'User',
-// 		required: APIErrorType.JTWTOKEN_INVALID_USER
-// 	},
-// 	ip: {
-// 		type: String,
-// 		minLength: [16, APIErrorType.JTWTOKEN_INVALID_IP],
-// 		maxLength: [7, APIErrorType.JTWTOKEN_INVALID_IP],
-// 		match: [/^[1-9.]+$/, APIErrorType.JTWTOKEN_INVALID_IP],
-// 		required: [true, APIErrorType.JTWTOKEN_INVALID_IP]
-// 	}
-// }, {
-// 	collection: 'tokens',
-// 	timestamps: true 
-// });
-
-// jwtSchema.plugin(idValidator);
-
-// jwtSchema.statics.createToken = async(userId: Types.ObjectId, userIp: string) => {
-// 	const token = new JWTToken({
-// 		value: '',
-// 		user: userId,
-// 		ip: userIp
-// 	});
-// 	token.value = token.sign('2h');
-// 	return await token.save();
-// };
-
-// jwtSchema.statics.decode = async function(token: string)  {
-// 	const decoded = await new Promise((resolve, reject) =>
-// 		jsonwebtoken.verify(token, SESSION_SECRET, (err, decoded) => err ? reject(err) : resolve(decoded)));
-// 	return decoded;
-// }
-
-// jwtSchema.methods.sign = function(time: string) {
-// 	return jsonwebtoken.sign(this.user._doc, SESSION_SECRET, { expiresIn: time });
-// };
-  
-// const JWTToken = model<IJWTTokenDocument, JWTTokenModel>('JWTToken', jwtSchema);
-// export default JWTToken;
+const Session = model<ISessionDocument, ISessionModel>('Session', sessionSchema);
+export default Session;

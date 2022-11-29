@@ -1,21 +1,20 @@
-import express from "express";
-import { env } from "./services/env.service";
-import { errorHandler, expressJwtOptions } from "./middlewares/index";
-import { connectDatabase } from "./services/database.service";
-// import expressjwt from "express-jwt";
-import router from "./routes";
+import express from 'express';
+import { errorHandler, notFoundHandler } from './services/middlewares';
+import { connectDatabase } from './services/mongoose/database.service';
+import env from './services/env.service';
+import router from './router'
 
-(async() => {
-    await connectDatabase();
-    const app = express()
+const app = express();
 
-    app.use(express.urlencoded());
-    app.use(express.json());
-    // app.use(expressjwt(expressJwtOptions).unless({ path: ["/session"] }));
-    app.use(router);
+app.disable('X-Powered-By');
+app.use(express.json());
 
-    app.use(errorHandler)
-    app.listen(env.CONTAINER_PORT, "0.0.0.0", () => {
-        console.log(`erver running at http://localhost:${env.CONTAINER_PORT}`)
-    })
-})()
+app.use('/api', router);
+
+app.use(notFoundHandler);
+app.use(errorHandler);
+
+connectDatabase().then(() => {
+    const port = parseInt(env.PORT);
+    app.listen(port, () => console.log(`[ExpressJS] Server successfully started on: ${port}`));
+});

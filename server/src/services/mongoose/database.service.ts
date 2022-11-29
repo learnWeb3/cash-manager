@@ -1,19 +1,26 @@
-import mongoose, { ConnectOptions, mongo } from 'mongoose';
+import mongoose, { ConnectOptions } from 'mongoose';
+import { sleep } from '../../utils/sleep';
+import env from '../env.service';
 
-const mongoURI = `mongodb://${process.env.MONGO_INITDB_ROOT_USERNAME}:${process.env.MONGO_INITDB_ROOT_PASSWORD}@${process.env.MONGO_HOST}:27017`;
+const mongoURI = `mongodb://${env.MONGO_USERNAME}:${env.MONGO_PASSWORD}@${env.MONGO_HOST}`;
+var connRetry = 5;
 
 export const connectDatabase = async function() {
     try {
         await mongoose.connect(mongoURI, <ConnectOptions>{
-            serverSelectionTimeoutMS: 2000,
+            serverSelectionTimeoutMS: 10000,
             ssl: false,
             useNewUrlParser: true,
-            dbName: process.env.MONGO_INITDB_DATABASE,
-            replicaSet: process.env.MONGO_REPLICA_SET_NAME,
+            dbName: env.MONGO_DATABASE,
+            // replicaSet: env.MONGO_REPLICA_NAME,
             directConnection: true
         });
     } catch(err) {
         console.error('[MongoDB] Connect Error', err);
+        if (--connRetry) {
+            await sleep(5000);
+            await connectDatabase()
+        }
     }
 }
 
