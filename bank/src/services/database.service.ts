@@ -3,6 +3,7 @@ import { env } from './env.service';
 
 export class Db {
     static async connect() {
-        return await mongoose.connect(`mongodb://${env.DATABASE_HOST}:${env.DATABASE_PORT}/${env.DATABASE_NAME}`)
+        const urlString: string = `mongodb://${env.DATABASE_USERNAME}:${env.DATABASE_PASSWORD}@${env.DATABASE_HOST}:${env.DATABASE_PORT}`
+        return await mongoose.connect(urlString)
     }
 }
