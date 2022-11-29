@@ -2,12 +2,13 @@ import mongoose, { ConnectOptions } from 'mongoose';
 import { sleep } from '../../utils/sleep';
 import env from '../env.service';
 
-const mongoURI = `mongodb://${env.MONGO_USERNAME}:${env.MONGO_PASSWORD}@${env.MONGO_HOST}`;
+const mongoURI = `mongodb://${env.MONGO_USERNAME}:${env.MONGO_PASSWORD}@${env.MONGO_HOST}:27017`;
+
 var connRetry = 5;
 
-export const connectDatabase = async function() {
+export const connectDatabase = async function (): Promise<typeof mongoose> {
     try {
-        await mongoose.connect(mongoURI, <ConnectOptions>{
+        return await mongoose.connect(mongoURI, <ConnectOptions>{
             serverSelectionTimeoutMS: 10000,
             ssl: false,
             useNewUrlParser: true,
@@ -15,11 +16,11 @@ export const connectDatabase = async function() {
             // replicaSet: env.MONGO_REPLICA_NAME,
             directConnection: true
         });
-    } catch(err) {
+    } catch (err) {
         console.error('[MongoDB] Connect Error', err);
         if (--connRetry) {
             await sleep(5000);
-            await connectDatabase()
+            return await connectDatabase()
         }
     }
 }

@@ -6,7 +6,9 @@ import router from './router'
 
 const app = express();
 
-app.disable('X-Powered-By');
+app.use(express.urlencoded({
+    extended: false
+}));
 app.use(express.json());
 
 app.use('/api', router);
@@ -14,7 +16,11 @@ app.use('/api', router);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-connectDatabase().then(() => {
-    const port = parseInt(env.PORT);
-    app.listen(port, () => console.log(`[ExpressJS] Server successfully started on: ${port}`));
-});
+app.use(errorHandler)
+
+
+connectDatabase().then((conneciton) => {
+    app.listen(env.PORT, '0.0.0.0', () => {
+        console.log(`server running at http://localhost:${env.PORT}`)
+    })
+})

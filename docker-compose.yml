@@ -1,4 +1,13 @@
 services:
+  bank:
+    build:
+      context: ./bank
+    ports:
+      - 9000:9000
+    env_file:
+      - .env.bank.development
+    depends_on:
+      - mongo
   server:
     build:
       context: ./server

@@ -1,6 +1,17 @@
+import dotenv from 'dotenv'
+import { join } from 'path';
+
+const isProd = process.env.NODE_ENV === "production";
+
+if (!isProd) {
+    dotenv.config({
+        path: join(process.cwd(), '..', '.server.env.development')
+    })
+}
+
 export interface Environment {
     NODE_ENV: "local" | "dev" | "staging" | "production";
-    PORT: string;
+    PORT: number;
     MONGO_HOST: string;
     MONGO_USERNAME: string;
     MONGO_PASSWORD: string;
@@ -9,10 +20,10 @@ export interface Environment {
     SESSION_EXPIRE: string;
     SESSION_SECRET: string;
 }
-  
+
 const environment: Environment = {
     NODE_ENV: process.env.NODE_ENV as Environment["NODE_ENV"],
-    PORT: process.env.PORT as Environment["PORT"],
+    PORT: +process.env.PORT as Environment["PORT"],
     MONGO_HOST: process.env.MONGO_HOST as Environment["MONGO_HOST"],
     MONGO_USERNAME: process.env.MONGO_USERNAME as Environment["MONGO_USERNAME"],
     MONGO_PASSWORD: process.env.MONGO_PASSWORD as Environment["MONGO_PASSWORD"],

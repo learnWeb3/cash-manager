@@ -1,10 +1,10 @@
 import { Schema, Types, model } from 'mongoose';
 import idValidator from 'mongoose-id-validator';
-import jsonwebtoken, { JwtPayload, VerifyErrors } from 'jsonwebtoken';
+import jsonwebtoken from 'jsonwebtoken';
 import crypto from 'crypto';
 
 import { ISession, ISessionDocument, ISessionModel, DecodedToken } from '../types/ISession';
-import { APIErrorType } from '../services/errors.service';
+import { APIErrorType } from '../services/errors.service';
 import env from '../services/env.service';
 
 const sessionSchema = new Schema<ISessionDocument>({
@@ -29,12 +29,18 @@ const sessionSchema = new Schema<ISessionDocument>({
 	}],
 }, {
 	collection: 'session',
-	timestamps: true 
+	timestamps: true,
+	toJSON: {
+		virtuals: true
+	},
+	toObject: {
+		virtuals: true
+	}
 });
 
 sessionSchema.plugin(idValidator);
 
-sessionSchema.statics.createSession = async(userId: Types.ObjectId, userAgent, userIp: string): Promise<ISession> => {
+sessionSchema.statics.createSession = async (userId: Types.ObjectId, userAgent, userIp: string): Promise<ISession> => {
 	const token = new Session({
 		refreshToken: crypto.randomBytes(64).toString('hex'),
 		user: userId,
@@ -52,7 +58,7 @@ sessionSchema.statics.createSession = async(userId: Types.ObjectId, userAgent, u
 	}
 };
 
-sessionSchema.methods.refresh = async function(): Promise<ISession> {
+sessionSchema.methods.refresh = async function (): Promise<ISession> {
 	this.refreshToken = crypto.randomBytes(64).toString('hex');
 	await this.save();
 	return {
@@ -63,14 +69,14 @@ sessionSchema.methods.refresh = async function(): Promise<ISession> {
 	}
 };
 
-sessionSchema.statics.decode = async function(token: string): Promise<DecodedToken> {
-	return await new Promise((resolve, reject) => 
+sessionSchema.statics.decode = async function (token: string): Promise<DecodedToken> {
+	return await new Promise((resolve, reject) =>
 		jsonwebtoken.verify(token, env.SESSION_SECRET, (err, decoded) => err ? reject(err) : resolve(decoded as DecodedToken))
 	);
 }
 
-sessionSchema.methods.sign = async function(): Promise<string> {
-	await this.populate({path: 'user', select: { _id: 1, role: 1 }});
+sessionSchema.methods.sign = async function (): Promise<string> {
+	await this.populate({ path: 'user', select: { _id: 1, role: 1 } });
 	return jsonwebtoken.sign({
 		session: this._id.toString(),
 		_id: this.user._doc._id.toString(),
@@ -80,9 +86,9 @@ sessionSchema.methods.sign = async function(): Promise<string> {
 
 
 
-sessionSchema.methods.newIpAddress = function() {
+sessionSchema.methods.newIpAddress = function () {
 	// return jsonwebtoken.sign(this.user._doc, env.SESSION_SECRET, { expiresIn: env.SESSION_EXPIRE });
 };
-  
+
 const Session = model<ISessionDocument, ISessionModel>('Session', sessionSchema);
 export default Session;
