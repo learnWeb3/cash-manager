@@ -19,6 +19,7 @@ export interface ClosingInventoryProductMethods {
 
 export interface ClosingInventoryProductModel extends Model<IClosingInventoryProduct, {}, ClosingInventoryProductMethods> {
     register(data: {
+        user: string,
         products: { id: string, quantity: number }[]
     }): Promise<ClosingInventoryProductDocument[]>
 }

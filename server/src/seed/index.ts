@@ -5,6 +5,7 @@ import { ProductCategory } from '../models/product-category.model';
 import { ProductUnit } from "../models/ProductUnit";
 import { Inventory } from '../models/inventory.model';
 import { Ticket } from '../models/ticket.model';
+import { ClosingInventoryProduct } from "../models/closing-product-inventory";
 
 connectDatabase().then(async (connection) => {
 
@@ -80,9 +81,9 @@ connectDatabase().then(async (connection) => {
     // }
 
     // // create inventories ==> stock IN
-    // const registeredUser = {
-    //     id: '638cac6e0793c7144096b62f'
-    // }
+    const registeredUser = {
+        id: '638cac6e0793c7144096b62f'
+    }
     // const registedProducts = await Product.find({})
     // await Inventory.register({
     //     user: registeredUser.id,
@@ -108,7 +109,33 @@ connectDatabase().then(async (connection) => {
     //     await Ticket.register(ticket)
     // }
 
-    // // get all products with stock 
+    // register closing invebntory product
+
+    const allProductsWithStocks = await Product.find({})
+        .populate({
+            path: 'currentPrice',
+        }).then(async (data) => await Promise.all(data.map((product) => product.getCurrentStock())))
+
+    await ClosingInventoryProduct.register({
+        user: registeredUser.id,
+        products: allProductsWithStocks.map((product) => ({
+            id: product.id,
+            quantity: product.currentStock
+        }))
+    })
+
+    // create inventories ==> stock IN
+    const registedProducts = await Product.find({})
+    await Inventory.register({
+        user: registeredUser.id,
+        products: registedProducts.map((product) => ({
+            id: product.id,
+            quantity: 5
+        }))
+    })
+
+
+    // get all products with stock (querying efficiently the stock in an intermediary collection THIS WILL BE DONE USING A CRON JOB)
 
     const registeredProductsWithStocks = await Product.find({})
         .populate({

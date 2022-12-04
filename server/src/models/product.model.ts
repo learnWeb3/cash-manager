@@ -61,6 +61,7 @@ const ProductSchema = new Schema<IProduct, ProductModel, ProductMethods, {}, Pro
   label: {
     type: String,
     required: true,
+    unique: true
   },
   deleted: {
     type: Boolean,
