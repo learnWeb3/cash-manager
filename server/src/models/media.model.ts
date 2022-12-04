@@ -4,7 +4,9 @@ import { Model } from 'mongoose';
 const { Types: { String, ObjectId, Number, Boolean } } = Schema
 
 interface IMedia {
-    path: string
+    path: string,
+    createdAt: Date
+    updatedAt: Date
 }
 
 export interface MediaMethods {

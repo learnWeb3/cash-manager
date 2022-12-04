@@ -6,6 +6,8 @@ const { Types: { String, ObjectId, Number, Boolean } } = Schema
 interface IProductMedia {
   product: typeof ObjectId;
   media: typeof ObjectId
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface ProductMediaMethods {

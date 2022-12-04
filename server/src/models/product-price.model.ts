@@ -6,6 +6,8 @@ const { Types: { String, ObjectId, Number, Boolean } } = Schema
 interface IProductPrice {
   product: typeof ObjectId;
   price: Number
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface ProductPriceMethods {

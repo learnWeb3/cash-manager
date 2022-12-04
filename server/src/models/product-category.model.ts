@@ -1,5 +1,4 @@
-import { Schema, model, HydratedDocument } from 'mongoose';
-import { Model } from 'mongoose';
+import { Schema, model, Model, HydratedDocument } from 'mongoose';
 
 const { Types: { String, ObjectId, Number, Boolean } } = Schema
 
@@ -7,17 +6,25 @@ interface IProductCategory {
   label: string
 }
 
+export interface ProductCategoryVirtuals {
+
+}
+
 export interface ProductCategoryMethods {
 
 }
 
-export interface ProductCategoryModel extends Model<IProductCategory, {}, ProductCategoryMethods> {
-
+export interface ProductCategoryModel extends Model<IProductCategory, {}, ProductCategoryMethods, ProductCategoryVirtuals> {
+  register(data: {
+    label: string
+  }): Promise<ProductCategoryDocument>
 }
 
-export type ProductCategoryDocument = HydratedDocument<IProductCategory, {}, ProductCategoryMethods>
 
-const ProductCategorySchema = new Schema<IProductCategory, ProductCategoryModel, ProductCategoryMethods>({
+export type ProductCategoryDocument = HydratedDocument<IProductCategory, ProductCategoryMethods, ProductCategoryVirtuals>
+
+
+const ProductCategorySchema = new Schema<IProductCategory, ProductCategoryModel, ProductCategoryMethods, {}, ProductCategoryVirtuals>({
   label: {
     type: String,
     required: true
@@ -31,5 +38,12 @@ const ProductCategorySchema = new Schema<IProductCategory, ProductCategoryModel,
     virtuals: true
   }
 });
+
+ProductCategorySchema.static('register', async function (data: { label: string }) {
+  const newProductCategory = new this({
+    label: data.label
+  })
+  return await newProductCategory.save()
+})
 
 export const ProductCategory = model<IProductCategory, ProductCategoryModel>('ProductCategory', ProductCategorySchema);
