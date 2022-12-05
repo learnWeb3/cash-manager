@@ -1,8 +1,6 @@
 FROM node:alpine
 
 ENV NODE_ENV=production
-ENV REACT_APP_API_URL=http://localhost:3000/api
-ENV PORT=3000
 
 WORKDIR /app
 

@@ -10,14 +10,9 @@ if (!isProd) {
 }
 
 export interface Environment {
-<<<<<<< HEAD
     NODE_ENV: "local" | "development" | "production";
-    PORT: string;
-    CLIENT_URL: string;
-=======
-    NODE_ENV: "local" | "dev" | "staging" | "production";
     PORT: number;
->>>>>>> ee4c0e3ce9e62658c0dcbeae585ad23f794330ff
+    CLIENT_URL: string;
     MONGO_HOST: string;
     MONGO_USERNAME: string;
     MONGO_PASSWORD: string;
@@ -29,7 +24,7 @@ export interface Environment {
 
 const environment: Environment = {
     NODE_ENV: process.env.NODE_ENV as Environment["NODE_ENV"],
-    PORT: +process.env.PORT as Environment["PORT"],
+    PORT: parseInt(process.env.PORT) as Environment["PORT"],
     MONGO_HOST: process.env.MONGO_HOST as Environment["MONGO_HOST"],
     CLIENT_URL: process.env.CLIENT_URL as Environment["CLIENT_URL"],
     MONGO_USERNAME: process.env.MONGO_USERNAME as Environment["MONGO_USERNAME"],
