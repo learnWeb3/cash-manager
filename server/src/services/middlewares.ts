@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { MongoServerError } from 'mongodb';
 import { Error as MongooseError } from 'mongoose';
 import { SessionModel } from '../models';
+import { Role } from '../models/role.model';
 import { ValidatorFunction } from '../validators';
 import { HttpException, APIErrorType, IAPIError, IErrorCode } from './errors.service';
 
@@ -59,6 +60,18 @@ export const bearerTokenHandler = async (req: Request, res: Response, next: Next
         // return next(new HttpException(401, 'Your token has expired'));
         return next(new HttpException(401, APIErrorType.SESSION_INVALID_TOKEN));
     }
+}
+
+export function roleGuard(authorizedRoles: Role[] = []) {
+    return function (req: Request, res: Response, next: NextFunction) {
+        if (res.locals.decoded) {
+            if (authorizedRoles.includes(res.locals.decoded.role)) {
+                return next();
+            }
+            return next(new HttpException(401, APIErrorType.API_UNAUTHORIZED, 'You do not have rights to perform this action, if you think it is a mistake please contact your administrator'));
+        }
+        return next(new HttpException(401, APIErrorType.API_UNAUTHORIZED, 'You do not have rights to perform this action, if you think it is a mistake please contact your administrator'));
+    };
 }
 
 export function authorizeQueryParams(authorizedParametersObject: { [key: string]: boolean } = {}) {

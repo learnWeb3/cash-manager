@@ -1,6 +1,7 @@
 import express from 'express';
 import { inventoriesController } from '../controllers';
-import { bearerTokenHandler, authorizeBodyParams, requireBodyParams, validateBodyParams } from '../services/middlewares';
+import { Role } from '../models/role.model';
+import { bearerTokenHandler, authorizeBodyParams, requireBodyParams, validateBodyParams, roleGuard } from '../services/middlewares';
 import { mergeValidate, validateObject, validateRequired, ValidatorFunction } from '../validators';
 import { validateArray, validateEach } from '../validators/index';
 
@@ -24,6 +25,7 @@ const validateProductFormat: ValidatorFunction = (key, value) => {
 inventoriesRouter
     .use(bearerTokenHandler)
     .post('/',
+        roleGuard([Role.ADMIN, Role.COMPANY_ADMIN]),
         authorizeBodyParams({
             user: true,
             products: true
