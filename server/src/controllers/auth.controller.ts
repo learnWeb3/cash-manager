@@ -33,8 +33,13 @@ export default {
     },
 
     refreshToken: async(req: Request, res: Response, next: NextFunction) => {
+        const { refreshToken } = req.body;        
         try {
-
+            const session = await authService.refreshToken(refreshToken);
+            res.status(201).json({
+                success: true,
+                session: session
+            });
         } catch(err) {
             return next(err);
         }        

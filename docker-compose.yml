@@ -1,27 +1,34 @@
 services:
-  bank:
-    build:
-      context: ./bank
-    ports:
-      - 9000:9000
-    env_file:
-      - .env.bank.development
-    depends_on:
-      - mongo
   server:
-    build:
-      context: ./server
+    build: ./server
     container_name: server
     ports:
       - 3000:3000
     env_file:
       - .server.env.development
+    environment:
+      - MONGO_HOST=mongo
     depends_on:
       - mongo
     volumes:
       - ./server/public/:/app/public/
       - ./server/src/:/app/src/
     command: npm run dev
+  
+  dashboard:
+    build: ./dashboard
+    container_name: dashboard
+    ports:
+      - 80:3000
+    env_file:
+      - .server.env.development
+    depends_on:
+      - mongo
+    volumes:
+      - ./dashboard/public/:/app/public/
+      - ./dashboard/src/:/app/src/
+    command: npm run start
+    
   mongo:
     image: mongo:latest
     container_name: mongo

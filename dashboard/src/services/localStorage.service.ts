@@ -1,4 +1,4 @@
-const LocalKey = "redux";
+export const LocalKey = "redux";
 
 const LocalStorage = {
 	load() {

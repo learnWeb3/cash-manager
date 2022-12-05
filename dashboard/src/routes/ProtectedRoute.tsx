@@ -1,6 +1,7 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, Navigate } from "react-router-dom";
 
 import Sidebar from '../components/sidebar/Sidebar';
+import { useAppSelector } from "../store/hooks";
 
 type TProtectedRoute = {
 	requireAuth: boolean,
@@ -9,18 +10,16 @@ type TProtectedRoute = {
 };
 
 const ProtectedRoute = ({ requireAuth, requireAdmin = false, redirectPath = '/login' }: TProtectedRoute) => {
-    // const connected = useSelector(state => state.session.isConnected);
-    // const userData = useSelector(state => state.session.userData);
+    const session = useAppSelector(state => state.auth);
+	const user = useAppSelector(state => state.user.data);
 
-    // if (!(connected === requireAuth)) {
-        // console.log("YOUR ARE NOT CONECTED", connected, requireAuth);
-        // return <Navigate to={redirectPath} replace />;
-    // }
+    if (!(session.isLogged === requireAuth))
+		return <Navigate to={redirectPath.toString()} replace />;
 
     return (
 		<>
 			{/* { connected && <ClientSockets/>} */}
-			{/* { requireAdmin && userData && userData.role != "ADMIN" && <Navigate to={redirectPath} replace /> } */}
+			{ requireAdmin && user && user.role != "ADMIN" && <Navigate to={redirectPath.toString()} replace /> }
 			{ requireAuth && <Sidebar />}
 			<Outlet/>
 		</>

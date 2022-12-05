@@ -1,7 +1,10 @@
 export default interface ISession {
-    sessionId: string;
-    accessToken: string | null;
-    refreshToken: string;
-    error: boolean;
-    message?: string;
+    _id: string;
+    accessToken: string;
+	refreshToken: string;
+	user: string;
+    devices: [{
+        userAgent: string;
+        ip: string;
+    }]
 };
