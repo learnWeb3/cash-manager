@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
-import {MongoServerError } from 'mongodb';
+import { Request, Response, NextFunction } from 'express';
+import { MongoServerError } from 'mongodb';
 import { Error as MongooseError } from 'mongoose';
 import { SessionModel } from '../models';
 import { Role } from '../models/role.model';
@@ -11,7 +11,7 @@ export const notFoundHandler = (req: Request, res: Response, next: NextFunction)
 }
 
 export const errorHandler = (error: HttpException | MongooseError, req: Request, res: Response, next: NextFunction) => {
-    const response: IAPIError = { success: false, status: 500, errors: [{ code: APIErrorType.API_INTERNAL_ERROR }] };
+    const response: IAPIError = { success: false, status: 500, errors: [{ code: APIErrorType.API_INTERNAL_ERROR }], message: error.message || "" };
 
     if (error.name == "HttpException") {
         const httpException = error as HttpException;
@@ -55,7 +55,7 @@ export const bearerTokenHandler = async (req: Request, res: Response, next: Next
             return next(new HttpException(401, APIErrorType.SESSION_INVALID_TOKEN));
         res.locals.decoded = decoded;
         return next();
-    } catch(err) {
+    } catch (err) {
         if ((err as Error).message == "jwt expired")
             return next(new HttpException(401, APIErrorType.SESSION_TOKEN_EXPIRED));
         return next(new HttpException(401, APIErrorType.SESSION_INVALID_TOKEN));

@@ -11,7 +11,7 @@ export default {
         })
     },
     getMany: async (req: Request, res: Response, next: NextFunction) => {
-        return Product.find(req.params).populate({
+        return Product.find(req.query).populate({
             path: 'currentPrice'
         }).then(async (data) => {
             data = await Promise.all(data.map((product) => product.getCurrentStock()))

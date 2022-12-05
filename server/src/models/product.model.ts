@@ -89,7 +89,7 @@ ProductSchema.virtual('currentPrice', {
   localField: '_id',
   foreignField: 'product',
   justOne: true,
-  match: { sort: { createdAt: -1 }, limit: 1,  },
+  match: { sort: { createdAt: -1 }, limit: 1, },
 
 })
 
@@ -179,23 +179,25 @@ ProductSchema.static('register', async function (data: {
 })
 
 ProductSchema.static('ammendOne', async function (id: string, data: {
-  unit: string,
-  label: string,
-  category: string,
+  unit?: string,
+  label?: string,
+  category?: string,
 }) {
   const errors = [];
   const product = await this.findOne({
     _id: id,
     deleted: false
   })
-  const productCategory = await ProductCategory.exists({
-    _id: data.category
-  })
   if (!product) {
     errors.push(`Product with id ${id} does not exists`)
   }
-  if (!productCategory) {
-    errors.push(`Product category with id ${data.category} does not exists`)
+  if (data.category) {
+    const productCategory = await ProductCategory.exists({
+      _id: data.category
+    })
+    if (!productCategory) {
+      errors.push(`Product category with id ${data.category} does not exists`)
+    }
   }
   if (errors.length) {
     throw new Error(errors.join(', '))

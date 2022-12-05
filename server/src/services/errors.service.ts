@@ -29,6 +29,7 @@ export interface IAPIError {
     success: false;
     status: number;
     errors: Array<IErrorCode>
+    message: string
 }
 
 export enum APIErrorType {

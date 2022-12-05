@@ -1,4 +1,5 @@
 import { Schema, model, Model, HydratedDocument } from 'mongoose';
+import { ProductDocument } from './product.model';
 
 const { Types: { String, ObjectId, Number, Boolean } } = Schema
 
@@ -7,7 +8,7 @@ interface IProductCategory {
 }
 
 export interface ProductCategoryVirtuals {
-
+  products: ProductDocument[]
 }
 
 export interface ProductCategoryMethods {
@@ -44,6 +45,12 @@ ProductCategorySchema.static('register', async function (data: { label: string }
     label: data.label
   })
   return await newProductCategory.save()
+})
+
+ProductCategorySchema.virtual('products', {
+  ref: 'Product',
+  localField: '_id',
+  foreignField: 'category'
 })
 
 export const ProductCategory = model<IProductCategory, ProductCategoryModel>('ProductCategory', ProductCategorySchema);

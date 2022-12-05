@@ -12,7 +12,7 @@ const validateProductFormat: ValidatorFunction = (key, value) => {
     if (!value.id) {
         errors.push(`missing required property id for key ${key}`)
     }
-    if (value.quantity) {
+    if (!value.quantity) {
         errors.push(`missing required property quantity for key ${key}`)
     }
     return {
@@ -47,6 +47,5 @@ inventoriesRouter
         }), inventoriesController.register)
     .get('/:id', inventoriesController.getOne)
     .get('/', inventoriesController.getMany)
-    .get('/current',)
 
 export default inventoriesRouter;

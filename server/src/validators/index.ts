@@ -38,7 +38,7 @@ export const mergeValidate = (key: string, value: any, validators: ValidatorFunc
 
 export const validateArray: ValidatorFunction = (key: string, value: any) => {
     const errors = [];
-    if (!value || Array.isArray(value)) {
+    if (!value || !Array.isArray(value)) {
         errors.push(`Wrong data format for key ${key}, must be array/list`)
     }
     return {
@@ -49,7 +49,7 @@ export const validateArray: ValidatorFunction = (key: string, value: any) => {
 
 export const validateObject: ValidatorFunction = (key: string, value: any) => {
     const errors = [];
-    if (!value || (typeof value !== "object" && !Array.isArray(value))) {
+    if (!value || (typeof value === "object" && Array.isArray(value))) {
         errors.push(`Wrong data format for key ${key}, must be object`)
     }
     return {

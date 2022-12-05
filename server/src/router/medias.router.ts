@@ -6,7 +6,7 @@ import { join } from 'path';
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, join(process.cwd(), 'tmp'))
+        cb(null, join(process.cwd(), 'public', 'tmp'))
     }
 })
 
@@ -17,6 +17,7 @@ const mediasRouter = express.Router();
 mediasRouter
     .use(bearerTokenHandler)
     .post('/', upload.single('media'), mediasController.register)
-    .get('/',)
+    .get('/', mediasController.getMany)
+    .get('/:id', mediasController.getOne)
 
 export default mediasRouter;

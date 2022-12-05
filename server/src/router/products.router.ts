@@ -2,8 +2,21 @@ import express from 'express';
 import { productsController } from '../controllers';
 import { Role } from '../models/role.model';
 import { bearerTokenHandler, authorizeBodyParams, requireBodyParams, validateBodyParams, authorizeQueryParams, roleGuard } from '../services/middlewares';
-import { validateRequired } from '../validators';
-import { validateArray, validateNumber } from '../validators/index';
+import { ProductUnit } from '../types/ProductUnit';
+import { validateRequired, ValidatorFunction } from '../validators';
+import { validateNumber } from '../validators/index';
+
+const validateProductUnit: ValidatorFunction = (key: string, value: string) => {
+    const errors = [];
+    const authorizedProductUnitValues = Object.values(ProductUnit)
+    if (!authorizedProductUnitValues.includes(value as ProductUnit)) {
+        errors.push(`Invalid product unit must be one of ${authorizedProductUnitValues.join(', ')}`)
+    }
+    return ({
+        errors,
+        valid: !errors.length
+    })
+}
 
 const productsRouter = express.Router();
 
@@ -22,13 +35,14 @@ productsRouter
             category: true
         }),
         validateBodyParams({
-            unit: validateRequired,
+            unit: validateProductUnit,
             label: validateRequired,
-            category: validateNumber,
+            category: validateRequired,
         }),
         productsController.register
     )
     .get('/', authorizeQueryParams({
+        deleted: true,
         category: true
     }),
         productsController.getMany
