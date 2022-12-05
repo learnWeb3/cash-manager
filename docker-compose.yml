@@ -1,5 +1,4 @@
 services:
-
   server:
     build: ./server
     container_name: server

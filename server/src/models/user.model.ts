@@ -27,21 +27,21 @@ const userSchema = new Schema<IUserDocument>({
 	},
 	role: {
 		type: String,
-		enum : ['COMPANY_ADMIN','ADMIN', 'EMPLOYEE'],
+		enum: ['COMPANY_ADMIN', 'ADMIN', 'EMPLOYEE'],
 		default: 'COMPANY_ADMIN'
 	},
 	email: {
 		address: {
-            type: String,
-            trim: true,
+			type: String,
+			trim: true,
 			lowercase: true,
 			unique: true,
 			required: APIErrorType.USER_INVALID_EMAIL_ADRESSE,
-        },
+		},
 		activate: {
-            type: Boolean,
+			type: Boolean,
 			default: false
-        }
+		}
 	},
 	password: {
 		type: String,
@@ -58,11 +58,19 @@ const userSchema = new Schema<IUserDocument>({
 		trim: true,
 		match: [/^[0-9]+$/, APIErrorType.USER_INVALID_PHONE_SYNTAX]
 	}
+}, {
+	timestamps: true,
+	toJSON: {
+		virtuals: true
+	},
+	toObject: {
+		virtuals: true
+	}
 });
 
 userSchema.plugin(idValidator);
 
-userSchema.statics.createUser = async function(firstName: string, lastName: string, email: string, password: string) {
+userSchema.statics.createUser = async function (firstName: string, lastName: string, email: string, password: string) {
 	const userModel = new User({
 		name: {
 			first: firstName,
@@ -77,19 +85,19 @@ userSchema.statics.createUser = async function(firstName: string, lastName: stri
 	return await userModel.save();
 };
 
-userSchema.methods.fullName = function() {
+userSchema.methods.fullName = function () {
 	return this.name.first + ' ' + this.name.last;
 };
 
-userSchema.methods.hashPassword = function() {
+userSchema.methods.hashPassword = function () {
 	const salt = bcrypt.genSaltSync(10);
 	this.password = bcrypt.hashSync(this.password, salt);
 };
 
-userSchema.methods.comparePassword = function(password: string) {
+userSchema.methods.comparePassword = function (password: string) {
 	return bcrypt.compareSync(password, this.password);
 };
-  
+
 
 const User = model<IUserDocument, IUserModel>('User', userSchema);
 

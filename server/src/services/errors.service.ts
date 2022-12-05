@@ -3,12 +3,13 @@ import { Types } from "mongoose";
 export class HttpException extends Error {
     status: number;
     code: APIErrorType;
+    message: string
 
-    constructor(status: number, code: APIErrorType) {
-      super("HttpException");
-      this.name = "HttpException";
-      this.status = status;
-      this.code = code;
+    constructor(status: number, code: APIErrorType, message = 'HttpException') {
+        super(message);
+        this.name = "HttpException";
+        this.status = status;
+        this.code = code;
     }
 }
 
@@ -33,6 +34,7 @@ export interface IAPIError {
 export enum APIErrorType {
     API_INTERNAL_ERROR = 'INTERNAL_SERVER_ERROR',
     API_ROUTE_NOT_FOUND = 'API_INVALID_ROUTE',
+    API_BAD_REQUEST = "BAD_REQUEST",
 
     AUTH_INVALID_PASSWORD = 'AUTH_INVALID_PASSWORD',
 
