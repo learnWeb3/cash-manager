@@ -1,0 +1,102 @@
+# server ENV
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: server-configmap
+data:
+  port: 3000
+  mongo_host: mongo
+  session_expire: "2d"
+  mongo_database: "cashmanager_db"
+---
+# server ENV SECRETS (BASE64)
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: server-secrets
+data:
+  mongo_password: "WlRaa1lXWm1aV010WlRBM01pMDBaRE5oTFRrNU1Ea3RNV1ZpTVRrNE1ETm1OVFF4Q2c9Cg=="
+  session_secret: "WWprelpEVXdOR010TXpWaU5DMDBOMkV5TFdFeE9HWXRNR1ZsWXpVMU9URmlaRFkzQ2c9PQo="
+  mongo_username: "Y2FzaG1hbmFnZXJfdXNlcgo="
+---
+# server DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server
+  labels:
+    tier: server
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: server
+  template:
+    metadata:
+      labels:
+        tier: server
+    spec:
+      containers:
+        - name: server
+          image: epitechregistry.azurecr.io/cash-manager:latest
+          env:
+            - name: MONGO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: server-secrets
+                  key: mongo_username
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: server-secrets
+                  key: mongo_password
+            - name: SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: server-secrets
+                  key: session_secret
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+                  key: port
+            - name: MONGO_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+                  key: mongo_host
+            - name: MONGO_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+                  key: mongo_database
+            - name: SESSION_EXPIRE
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+                  key: session_expire
+          ports:
+            - containerPort: 3000
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: epitech-cluster-secret
+---
+# server SERVICES
+apiVersion: v1
+kind: Service
+metadata:
+  name: server
+spec:
+  selector:
+    tier: server
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: 3000
+      name: http

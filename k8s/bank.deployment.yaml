@@ -1,0 +1,128 @@
+# bank ENV
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bank-configmap
+data:
+  container_port: 4000
+  jwt_exp: 86400
+  jwt_issuer: "cash-manager"
+  cors_allowed_origin: "*"
+  database_host: "mongo"
+  database_port: 27017
+  database_name: "bank"
+---
+# bank ENV SECRETS (BASE64)
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: bank-secrets
+data:
+  jwt_secret: "WWprelpEVXdOR010TXpWaU5DMDBOMkV5TFdFeE9HWXRNR1ZsWXpVMU9URmlaRFkzQ2c9PQo="
+  database_password: "WlRaa1lXWm1aV010WlRBM01pMDBaRE5oTFRrNU1Ea3RNV1ZpTVRrNE1ETm1OVFF4Q2c9Cg=="
+  database_username: "Y2FzaG1hbmFnZXJfdXNlcgo="
+---
+# bank DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bank
+  labels:
+    tier: bank
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: bank
+  template:
+    metadata:
+      labels:
+        tier: bank
+    spec:
+      containers:
+        - name: bank
+          image: epitechregistry.azurecr.io/bank:latest
+          env:
+            - name: MONGO_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: bank-configmap
+                  key: mongo_username
+            - name: CONTAINER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: bank-configmap
+                  key: container_port
+            - name: JWT_EXP
+              valueFrom:
+                configMapKeyRef:
+                  name: bank-configmap
+                  key: jwt_exp
+
+            - name: JWT_ISSUER
+              valueFrom:
+                configMapKeyRef:
+                  name: bank-configmap
+                  key: jwt_issuer
+            - name: CORS_ALLOWED_ORIGIN
+              valueFrom:
+                configMapKeyRef:
+                  name: bank-configmap
+                  key: cors_allowed_origin
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: bank-configmap
+                  key: database_host
+            - name: DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: bank-configmap
+                  key: database_port
+            - name: DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: bank-configmap
+                  key: database_name
+
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: bank-secrets
+                  key: jwt_secret
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: bank-secrets
+                  key: database_username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: bank-secrets
+                  key: database_password
+
+          ports:
+            - containerPort: 4000
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: epitech-cluster-secret
+---
+# bank SERVICES
+apiVersion: v1
+kind: Service
+metadata:
+  name: bank
+spec:
+  selector:
+    tier: bank
+  type: ClusterIP
+  ports:
+    - port: 4000
+      targetPort: 4000
+      name: http

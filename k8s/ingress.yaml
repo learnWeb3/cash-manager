@@ -1,0 +1,42 @@
+#ingress.yaml
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: time-manager
+#   annotations:
+#     nginx.ingress.kubernetes.io/enable-cors: "true"
+#     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+#     nginx.ingress.kubernetes.io/use-regex: "true"
+#     nginx.ingress.kubernetes.io/rewrite-target: /$2
+# spec:
+#   ingressClassName: nginx
+#   rules:
+#     - host: time-manager.3b5dc61020ee438e87d7.francecentral.aksapp.io
+#       http:
+#         paths:
+#           - path: /(.*)
+#             pathType: ImplementationSpecific
+#             backend:
+#               service:
+#                 name: application
+#                 port:
+#                   number: 80
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: time-manager
+  annotations:
+    kubernetes.io/ingress.class: addon-http-application-routing
+spec:
+  rules:
+    - host: time-manager.3b5dc61020ee438e87d7.francecentral.aksapp.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: application
+                port:
+                  number: 80
