@@ -48,3 +48,30 @@ kubectl apply -f ./k8s/bank.deployment.yaml
 kubectl apply -f ./k8s/server.deployment.yaml
 ```
 
+
+### Deploy mongo cluster (Helm required)
+
+- Without TLS enabled 
+
+```bash
+helm install community-operator mongodb/community-operator
+kubectl apply -f k8s/mongo-cluster/mongodb.com_v1_mongodbcommunity_cr.yaml --set operator.watchNamespace='*'
+```
+
+- With TLS enabled 
+
+```bash
+# Add the cert-manager repository to your helm repository list and ensure it's up to date:
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+# Install cert-manager:
+helm install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --set installCRDs=true
+
+# Add mongodb repository to your helm repository list and ensure it's up to data:
+helm repo add mongodb https://mongodb.github.io/helm-charts
+helm repo update
+
+helm install community-operator mongodb/community-operator --set resource.tls.useCertManager=true --set resource.tls.enabled=true --set operator.watchNamespace='*'
+
+kubectl apply -f k8s/mongo-cluster/mongodb.com_v1_mongodbcommunity_cr.yaml
+```

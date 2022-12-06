@@ -11,8 +11,8 @@ import { Db } from './services/database.service';
 
 Db.connect().then((connection) => {
 
-    console.log(`database connection opened at mongodb://${env.DATABASE_HOST}:${env.DATABASE_PORT}`)
-    
+    console.log(`database connection opened at ${env.DATABASE_URI}`)
+
     const app = express()
 
     app.use(express.urlencoded({
