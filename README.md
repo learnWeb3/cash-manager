@@ -74,4 +74,7 @@ helm repo update
 helm install community-operator mongodb/community-operator --set resource.tls.useCertManager=true --set resource.tls.enabled=true --set operator.watchNamespace='*'
 
 kubectl apply -f k8s/mongo-cluster/mongodb.com_v1_mongodbcommunity_cr.yaml
+
+# Get the connection string (mongo uri) to be referenced from app using database cluster
+kubectl get secret database-cluster-admin-cashmanager -o json | jq -r '.data | with_entries(.value |= @base64d)'
 ```
