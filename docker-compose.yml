@@ -1,28 +1,22 @@
 services:
 
   bank:
-    image: "epitechregistry.azurecr.io/bank:latest"
     build: ./bank
     container_name: bank
     ports:
       - 4000:4000
     env_file:
       - .env.bank.development
-    # environment:
-    #   - DATABASE_HOST=mongo
     depends_on:
       - mongo
 
   server:
-    image: "epitechregistry.azurecr.io/cash-manager:latest"
     build: ./server
     container_name: server
     ports:
       - 3000:3000
     env_file:
       - .server.env.development
-    environment:
-      - MONGO_HOST=mongo
     depends_on:
       - mongo
     volumes:
@@ -30,19 +24,19 @@ services:
       - ./server/src/:/app/src/
     command: npm run dev
 
-  # dashboard:
-  #   build: ./dashboard
-  #   container_name: dashboard
-  #   ports:
-  #     - 80:3000
-  #   env_file:
-  #     - .server.env.development
-  #   depends_on:
-  #     - mongo
-  #   volumes:
-  #     - ./dashboard/public/:/app/public/
-  #     - ./dashboard/src/:/app/src/
-  #   command: npm run start
+  dashboard:
+    build: ./dashboard
+    container_name: dashboard
+    ports:
+      - 80:3000
+    env_file:
+      - .dashboard.env.development
+    depends_on:
+      - mongo
+    volumes:
+      - ./dashboard/public/:/app/public/
+      - ./dashboard/src/:/app/src/
+    command: npm run start
 
   mongo:
     image: mongo:latest
