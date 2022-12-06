@@ -1,14 +1,14 @@
 # AZURE PRODUCTION STORAGE CLASS
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: azure-storage
-provisioner: file.csi.azure.com
-allowVolumeExpansion: true
-parameters:
-  protocol: nfs
-mountOptions:
-  - nconnect=8
+# apiVersion: storage.k8s.io/v1
+# kind: StorageClass
+# metadata:
+#   name: azure-storage
+# provisioner: file.csi.azure.com
+# allowVolumeExpansion: true
+# parameters:
+#   protocol: nfs
+# mountOptions:
+#   - nconnect=8
 ---
 # DATABASE ENV (BASE64)
 apiVersion: v1
@@ -17,15 +17,17 @@ type: Opaque
 metadata:
   name: database-secrets
 data:
-  mongo_username: "Y2FzaG1hbmFnZXJfdXNlcgo="
-  mongo_password: "WlRaa1lXWm1aV010WlRBM01pMDBaRE5oTFRrNU1Ea3RNV1ZpTVRrNE1ETm1OVFF4Q2c9Cg=="
+   # cashmanager
+  mongo_username: "Y2FzaG1hbmFnZXI="
+  # fc999d9d
+  mongo_password: "ZmM5OTlkOWQ=" 
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: database-configmap
 data:
-  mongo_database: "cashmanager_db"
+  mongo_database: "cashmanager"
 ---
 # STATEFULSET
 apiVersion: apps/v1
@@ -46,41 +48,41 @@ spec:
         "kubernetes.io/os": linux
       containers:
         - name: mongo
-          image: postgres:latest
+          image: mongo
           env:
-            - name: MONGO_USERNAME
+            - name: MONGO_INITDB_ROOT_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: database-secrets
                   key: mongo_username
-            - name: MONGO_PASSWORD
+            - name: MONGO_INITDB_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: database-secrets
                   key: mongo_password
-            - name: MONGO_DATABASE
+            - name: MONGO_INITDB_DATABASE
               valueFrom:
                 configMapKeyRef:
                   name: database-configmap
                   key: mongo_database
-          volumeMounts:
-            - name: persistent-storage
-              mountPath: /data/db
+          # volumeMounts:
+          #   - name: persistent-storage
+          #     mountPath: /data/db
   updateStrategy:
     type: RollingUpdate
   selector:
     matchLabels:
       tier: database
-  volumeClaimTemplates:
-    - metadata:
-        name: persistent-storage
-        annotations:
-          volume.beta.kubernetes.io/storage-class: azure-storage
-      spec:
-        accessModes: ["ReadWriteMany"]
-        resources:
-          requests:
-            storage: 10Gi
+  # volumeClaimTemplates:
+  #   - metadata:
+  #       name: persistent-storage
+  #       annotations:
+  #         volume.beta.kubernetes.io/storage-class: azure-storage
+  #     spec:
+  #       accessModes: ["ReadWriteMany"]
+  #       resources:
+  #         requests:
+  #           storage: 10Gi
 ---
 # INTERNAL SERVICES forward traffic to database on port 27017 using mongo hostname internally
 apiVersion: v1

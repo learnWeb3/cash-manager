@@ -4,12 +4,12 @@ kind: ConfigMap
 metadata:
   name: bank-configmap
 data:
-  container_port: 4000
-  jwt_exp: 86400
+  container_port: "4000"
+  jwt_exp: "86400"
   jwt_issuer: "cash-manager"
   cors_allowed_origin: "*"
   database_host: "mongo"
-  database_port: 27017
+  database_port: "27017"
   database_name: "bank"
 ---
 # bank ENV SECRETS (BASE64)
@@ -19,9 +19,12 @@ type: Opaque
 metadata:
   name: bank-secrets
 data:
-  jwt_secret: "WWprelpEVXdOR010TXpWaU5DMDBOMkV5TFdFeE9HWXRNR1ZsWXpVMU9URmlaRFkzQ2c9PQo="
-  database_password: "WlRaa1lXWm1aV010WlRBM01pMDBaRE5oTFRrNU1Ea3RNV1ZpTVRrNE1ETm1OVFF4Q2c9Cg=="
-  database_username: "Y2FzaG1hbmFnZXJfdXNlcgo="
+   # 8cfcd9b78345
+  jwt_secret: "OGNmY2Q5Yjc4MzQ1"
+   # cashmanager
+  database_username: "Y2FzaG1hbmFnZXI="
+  # fc999d9d
+  database_password: "ZmM5OTlkOWQ=" 
 ---
 # bank DEPLOYMENT
 apiVersion: apps/v1
@@ -48,12 +51,8 @@ spec:
       containers:
         - name: bank
           image: epitechregistry.azurecr.io/bank:latest
+          imagePullPolicy: IfNotPresent
           env:
-            - name: MONGO_USERNAME
-              valueFrom:
-                configMapKeyRef:
-                  name: bank-configmap
-                  key: mongo_username
             - name: CONTAINER_PORT
               valueFrom:
                 configMapKeyRef:
@@ -90,7 +89,6 @@ spec:
                 configMapKeyRef:
                   name: bank-configmap
                   key: database_name
-
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
