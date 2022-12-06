@@ -4,7 +4,7 @@ kind: ConfigMap
 metadata:
   name: server-configmap
 data:
-  port: 3000
+  port: "3000"
   mongo_host: mongo
   session_expire: "2d"
   mongo_database: "cashmanager_db"
@@ -16,9 +16,12 @@ type: Opaque
 metadata:
   name: server-secrets
 data:
-  mongo_password: "WlRaa1lXWm1aV010WlRBM01pMDBaRE5oTFRrNU1Ea3RNV1ZpTVRrNE1ETm1OVFF4Q2c9Cg=="
-  session_secret: "WWprelpEVXdOR010TXpWaU5DMDBOMkV5TFdFeE9HWXRNR1ZsWXpVMU9URmlaRFkzQ2c9PQo="
-  mongo_username: "Y2FzaG1hbmFnZXJfdXNlcgo="
+  # 8cfcd9b78345
+  session_secret: "OGNmY2Q5Yjc4MzQ1"
+     # cashmanager
+  mongo_username: "Y2FzaG1hbmFnZXI="
+  # fc999d9d
+  mongo_password: "ZmM5OTlkOWQ=" 
 ---
 # server DEPLOYMENT
 apiVersion: apps/v1
@@ -45,6 +48,7 @@ spec:
       containers:
         - name: server
           image: epitechregistry.azurecr.io/cash-manager:latest
+          imagePullPolicy: IfNotPresent
           env:
             - name: MONGO_USERNAME
               valueFrom:

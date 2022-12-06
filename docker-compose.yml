@@ -8,8 +8,8 @@ services:
       - 4000:4000
     env_file:
       - .env.bank.development
-    environment:
-      - DATABASE_HOST=mongo
+    # environment:
+    #   - DATABASE_HOST=mongo
     depends_on:
       - mongo
 
@@ -50,7 +50,7 @@ services:
     ports:
       - 27017:27017
     env_file:
-      - .server.env.development
+      - .env.database.development
     volumes:
       - ./mongo_data/:/data/db
       - ./mongo_data/:/data/configdb
