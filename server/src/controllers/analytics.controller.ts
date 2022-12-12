@@ -9,16 +9,12 @@ export default {
         try {
 
             const periodicity = {
-                start: +req.query.start || Date.now() / 1000,
-                end: +req.query.end || Date.now() / 1000 - (24 * 7 * 60 * 60)
+                start: +req.query.start || Date.now() - (24 * 365 * 60 * 60 * 1000),
+                end: +req.query.end || Date.now() + (24 * 60 * 60 * 1000),
             }
             const ticketAnalytics = await Ticket.getAnalytics(periodicity)
-            const productAnalytics = await Product.getAnalytics(periodicity)
-            const inventoryAnalytics = await Inventory.getAnalytics(periodicity)
             const data = {
-                ticketAnalytics,
-                productAnalytics,
-                inventoryAnalytics
+                ticketAnalytics
             }
             res.status(200).json(data);
         } catch (error) {

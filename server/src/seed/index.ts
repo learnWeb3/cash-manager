@@ -86,7 +86,8 @@ connectDatabase().then(async (connection) => {
     //     user: registeredUser.id,
     //     products: registedProducts.map((product) => ({
     //         id: product.id,
-    //         quantity: 5
+    //         quantity: 5,
+    //         price: Math.ceil(Math.random() * 100)
     //     }))
     // })
 
@@ -126,16 +127,14 @@ connectDatabase().then(async (connection) => {
     //     user: registeredUser.id,
     //     products: registedProducts.map((product) => ({
     //         id: product.id,
-    //         quantity: 5
+    //         quantity: 5,
+    //         price: Math.ceil(Math.random() * 100)
     //     }))
     // })
 
 
     // // get all products with stock (querying efficiently the stock in an intermediary collection THIS WILL BE DONE USING A CRON JOB)
-    // const registeredProductsWithStocks = await Product.find({})
-    //     .populate({
-    //         path: 'currentPrice',
-    //     }).then(async (data) => await Promise.all(data.map((product) => product.getCurrentStock())))
+    // const registeredProductsWithStocks = await Product.findAllWithCurrentStockAndPrice({}).then(async (data) => await Promise.all(data.map((product) => product.getCurrentStock())))
 
     Ticket.getAnalytics({
         start: 1000,

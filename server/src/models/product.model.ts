@@ -319,11 +319,7 @@ ProductSchema.static('ammendOnePrice', async function (id: string, price: number
     price
   })
 
-
-
-  const test = await newProductPrice.save();
-
-  console.log(test)
+  await newProductPrice.save();
   return await this.findOneWithCurrentPriceAndStock({
     _id: id,
     deleted: false
