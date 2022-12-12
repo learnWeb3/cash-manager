@@ -1,5 +1,4 @@
-import { Schema, model, HydratedDocument, Mongoose, Types } from 'mongoose';
-import mongoose from 'mongoose'
+import { Schema, model, HydratedDocument } from 'mongoose';
 import { ProductUnit } from './ProductUnit';
 import { Model } from 'mongoose';
 import { ProductPrice, ProductPriceDocument } from './product-price.model';
