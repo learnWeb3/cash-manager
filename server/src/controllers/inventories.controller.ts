@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { APIErrorType, HttpException } from '../services/errors.service';
 import { Inventory, InventoryDocument } from '../models/inventory.model';
-import { Product } from '../models/product.model';
 
 export default {
     register: async (req: Request, res: Response, next: NextFunction) => {

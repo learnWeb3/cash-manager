@@ -15,6 +15,10 @@ const validateProductFormat: ValidatorFunction = (key, value) => {
     if (!value.quantity) {
         errors.push(`missing required property quantity for key ${key}`)
     }
+
+    if (!value.price) {
+        errors.push(`missing required property price for key ${key}`)
+    }
     return {
         errors,
         valid: !errors.length

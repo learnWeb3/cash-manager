@@ -6,6 +6,7 @@ const { Types: { ObjectId, Number } } = Schema
 interface IInventoryProduct {
   product: typeof ObjectId
   inventory: typeof ObjectId
+  price: number,
   quantity: number
   createdAt: Date
   updatedAt: Date
@@ -35,6 +36,11 @@ const InventoryProductSchema = new Schema<IInventoryProduct, InventoryProductMod
   quantity: {
     type: Number,
     required: true
+  },
+  price: {
+    type: Number,
+    required: true,
+    default: 0
   }
 }, {
   timestamps: true,

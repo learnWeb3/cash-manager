@@ -22,7 +22,7 @@ export interface InventoryMethods {
 export interface InventoryModel extends Model<IInventory, {}, InventoryMethods, InventoryVirtuals> {
     register(data: {
         user: string,
-        products: { id: string, quantity: number }[]
+        products: { id: string, quantity: number, price: number }[]
     }): Promise<InventoryDocument>
     findOneWithUser(filters: { [key: string]: any }): Promise<InventoryDocument>,
     findOneWithProducts(filters: { [key: string]: any }): Promise<InventoryDocument>,
@@ -65,7 +65,7 @@ InventorySchema.static('getAnalytics', function (periodicity: {
 
 })
 
-InventorySchema.static('register', async function (data: { user: string, products: { id: string, quantity: number }[] }) {
+InventorySchema.static('register', async function (data: { user: string, products: { id: string, quantity: number, price: number }[] }) {
     const errors = [];
     const userExists = await User.exists({
         _id: data.user
@@ -96,7 +96,8 @@ InventorySchema.static('register', async function (data: { user: string, product
         const newInventoryProduct = new InventoryProduct({
             inventory: newInventory.id,
             product: product.id,
-            quantity: product.quantity
+            quantity: product.quantity,
+            price: product.price
         })
 
         await newInventoryProduct.save()
