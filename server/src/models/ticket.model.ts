@@ -4,6 +4,9 @@ import { Model } from 'mongoose';
 import { TicketProduct, TicketProductDocument } from './ticket-products.model';
 import { Product } from './product.model';
 import User from './user.model';
+import { ProductPrice } from './product-price.model';
+import { ObjectId } from 'mongoose';
+import { ObjectID } from 'bson';
 
 const { Types: { String, ObjectId, Number, Boolean } } = Schema
 
@@ -30,6 +33,10 @@ export interface TicketModel extends Model<ITicket, {}, TicketMethods> {
   findOneWithUserAndProducts(filters: { [key: string]: any }): Promise<TicketDocument>
   findOneWithUser(filters: { [key: string]: any }): Promise<TicketDocument>,
   findOneWithProducts(filters: { [key: string]: any }): Promise<TicketDocument>,
+  getAnalytics(periodicity: {
+    start: number,
+    end: number
+  }): Promise<any>
 }
 
 export type TicketDocument = HydratedDocument<ITicket, TicketMethods, TicketVirtuals>
@@ -84,6 +91,184 @@ TicketSchema.static('findOneWithUserAndProducts', async function (filters) {
       path: 'products',
       populate: 'product'
     })
+})
+
+TicketSchema.static('getAnalytics', async function (periodicity: {
+  start: number,
+  end: number
+}) {
+
+  const filterQueryPart = {
+    $match: {
+      createdAt: {
+        $gte: new Date(periodicity.start * 1000),
+        $lt: new Date(periodicity.end * 1000)
+      }
+    }
+  }
+  // total CA (sum tickets value) 
+
+  const totalCA = TicketProduct.aggregate([
+    // filterQueryPart,
+    { $project: { product: { $toObjectId: "$product" }, createdAt: 1 } },
+    {
+      $lookup: {
+        from: ProductPrice.collection.name,
+        localField: "product",
+        foreignField: "product",
+        let: { createdAt: "$createdAt" },
+        pipeline: [
+          {
+            $match: {
+              $expr:
+                { $lte: ["$createdAt", "$$createdAt"] }
+            }
+          },
+          { $sort: { createdAt: -1 } },
+          { $limit: 1 }
+        ],
+        as: "prices"
+      }
+    },
+    {
+      $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$prices", 0] }, "$$ROOT"] } }
+    },
+    { $addFields: { label: "sum" } },
+    {
+      $group:
+      {
+        _id: "$label",
+        sum: { $sum: "$price" }
+      }
+    },
+    { $project: { prices: 0, _id: 0 } },
+  ]);
+
+  // await totalCA.exec().then((data) => console.log(JSON.stringify(data, null, 4)))
+
+
+  // // CA by day
+
+  const daylyCA = TicketProduct.aggregate([
+    // filterQueryPart,
+    { $project: { product: { $toObjectId: "$product" }, createdAt: 1 } },
+    {
+      $lookup: {
+        from: ProductPrice.collection.name,
+        localField: "product",
+        foreignField: "product",
+        let: { createdAt: "$createdAt" },
+        pipeline: [
+          {
+            $match: {
+              $expr:
+                { $lte: ["$createdAt", "$$createdAt"] }
+            }
+          },
+          { $sort: { createdAt: -1 } },
+          { $limit: 1 }
+        ],
+        as: "prices"
+      }
+    },
+    {
+      $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$prices", 0] }, "$$ROOT"] } }
+    },
+    {
+      $addFields: {
+        date: {
+          $dateToString: {
+            date: "$createdAt",
+            format: "%Y-%m-%d",
+            timezone: "UTC"
+          }
+        }
+      }
+    },
+    {
+      $group:
+      {
+        _id: "$date",
+        sum: { $sum: "$price" },
+      }
+    },
+    { $project: { prices: 0, _id: 1 } }
+  ]);
+
+  // await daylyCA.exec().then((data) => console.log(JSON.stringify(data, null, 4)))
+
+  // // 10 most bought products
+
+  const mostBoughtProducts = TicketProduct.aggregate([
+    // filterQueryPart,
+    { $project: { product: { $toObjectId: "$product" }, quantity: 1 } },
+    {
+      $lookup: {
+        from: Product.collection.name,
+        localField: "product",
+        foreignField: "_id",
+        as: "product"
+      }
+    },
+    {
+      $group:
+      {
+        _id: "$product",
+        sum: { $sum: "$quantity" },
+      }
+    },
+    {
+      $sort: { quantity: -1 }
+    },
+    {
+      $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$_id", 0] }, "$$ROOT"] } }
+    },
+    {
+      $project: {
+        _id: 0
+      }
+    },
+    { $limit: 10 }
+  ]);
+
+  // await mostBoughtProducts.exec().then((data) => console.log(JSON.stringify(data, null, 4)))
+
+  // // 10 least bought products
+
+  const leastBoughtProducts = TicketProduct.aggregate([
+    // filterQueryPart,
+    { $project: { product: { $toObjectId: "$product" }, quantity: 1 } },
+    {
+      $lookup: {
+        from: Product.collection.name,
+        localField: "product",
+        foreignField: "_id",
+        as: "product"
+      }
+    },
+    {
+      $group:
+      {
+        _id: "$product",
+        sum: { $sum: "$quantity" },
+      }
+    },
+    {
+      $sort: { quantity: 1 }
+    },
+    {
+      $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$_id", 0] }, "$$ROOT"] } }
+    },
+    {
+      $project: {
+        _id: 0
+      }
+    },
+    { $limit: 10 }
+  ]);
+
+  await leastBoughtProducts.exec().then((data) => console.log(JSON.stringify(data, null, 4)))
+
 })
 
 TicketSchema.static('register', async function (data: { user: string, products: { id: string, quantity: number }[] }) {

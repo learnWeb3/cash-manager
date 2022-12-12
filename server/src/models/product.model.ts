@@ -43,6 +43,10 @@ export interface ProductModel extends Model<IProduct, {}, ProductMethods, Produc
   findOneWithCurrentPrice(filters: { [key: string]: any }): Promise<ProductDocument>,
   findOneWithCurrentPriceAndStock(filters: { [key: string]: any }): Promise<ProductDocument>,
   removeOne(id: string): Promise<ProductDocument>,
+  getAnalytics(periodicity: {
+    start: number,
+    end: number
+  }): Promise<any>
 }
 
 export type ProductDocument = HydratedDocument<IProduct, ProductMethods, ProductVirtals>
@@ -155,6 +159,13 @@ ProductSchema.static('findOneWithCurrentPriceAndStock', async function (filters)
     .then(async (product) => await product.getCurrentStock())
 })
 
+ProductSchema.static('getAnalytics', function (periodicity: {
+  start: number,
+  end: number
+}) {
+
+})
+
 ProductSchema.static('register', async function (data: {
   unit: string,
   label: string,
@@ -227,7 +238,11 @@ ProductSchema.static('ammendOnePrice', async function (id: string, price: number
     price
   })
 
-  await newProductPrice.save();
+  console.log(newProductPrice)
+
+  const test = await newProductPrice.save();
+
+  console.log(test)
   return await this.findOneWithCurrentPriceAndStock({
     _id: id,
     deleted: false

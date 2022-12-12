@@ -27,6 +27,10 @@ export interface InventoryModel extends Model<IInventory, {}, InventoryMethods, 
     findOneWithUser(filters: { [key: string]: any }): Promise<InventoryDocument>,
     findOneWithProducts(filters: { [key: string]: any }): Promise<InventoryDocument>,
     findOneWithUserAndProducts(filters: { [key: string]: any }): Promise<InventoryDocument>,
+    getAnalytics(periodicity: {
+        start: number,
+        end: number
+    }): Promise<any>
 }
 
 export type InventoryDocument = HydratedDocument<IInventory, InventoryMethods, InventoryVirtuals>
@@ -50,6 +54,15 @@ InventorySchema.virtual('products', {
     ref: 'InventoryProduct',
     localField: '_id',
     foreignField: 'inventory'
+})
+
+InventorySchema.static('getAnalytics', function (periodicity: {
+    start: number,
+    end: number
+}) {
+
+  // stock by products by day
+
 })
 
 InventorySchema.static('register', async function (data: { user: string, products: { id: string, quantity: number }[] }) {

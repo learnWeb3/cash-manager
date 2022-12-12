@@ -81,9 +81,6 @@ connectDatabase().then(async (connection) => {
     // }
 
     // // create inventories ==> stock IN
-    const registeredUser = {
-        id: '638cac6e0793c7144096b62f'
-    }
     // const registedProducts = await Product.find({})
     // await Inventory.register({
     //     user: registeredUser.id,
@@ -109,38 +106,41 @@ connectDatabase().then(async (connection) => {
     //     await Ticket.register(ticket)
     // }
 
-    // register closing invebntory product
+    // // register closing invebntory product
 
-    const allProductsWithStocks = await Product.find({})
-        .populate({
-            path: 'currentPrice',
-        }).then(async (data) => await Promise.all(data.map((product) => product.getCurrentStock())))
+    // const allProductsWithStocks = await Product.find({})
+    //     .populate({
+    //         path: 'currentPrice',
+    //     }).then(async (data) => await Promise.all(data.map((product) => product.getCurrentStock())))
 
-    await ClosingInventoryProduct.register({
-        user: registeredUser.id,
-        products: allProductsWithStocks.map((product) => ({
-            id: product.id,
-            quantity: product.currentStock
-        }))
+    // await ClosingInventoryProduct.register({
+    //     user: registeredUser.id,
+    //     products: allProductsWithStocks.map((product) => ({
+    //         id: product.id,
+    //         quantity: product.currentStock
+    //     }))
+    // })
+
+    // // create inventories ==> stock IN
+    // await Inventory.register({
+    //     user: registeredUser.id,
+    //     products: registedProducts.map((product) => ({
+    //         id: product.id,
+    //         quantity: 5
+    //     }))
+    // })
+
+
+    // // get all products with stock (querying efficiently the stock in an intermediary collection THIS WILL BE DONE USING A CRON JOB)
+    // const registeredProductsWithStocks = await Product.find({})
+    //     .populate({
+    //         path: 'currentPrice',
+    //     }).then(async (data) => await Promise.all(data.map((product) => product.getCurrentStock())))
+
+    // console.log(registeredProductsWithStocks)
+
+    Ticket.getAnalytics({
+        start: 1000,
+        end: 1000
     })
-
-    // create inventories ==> stock IN
-    const registedProducts = await Product.find({})
-    await Inventory.register({
-        user: registeredUser.id,
-        products: registedProducts.map((product) => ({
-            id: product.id,
-            quantity: 5
-        }))
-    })
-
-
-    // get all products with stock (querying efficiently the stock in an intermediary collection THIS WILL BE DONE USING A CRON JOB)
-
-    const registeredProductsWithStocks = await Product.find({})
-        .populate({
-            path: 'currentPrice',
-        }).then(async (data) => await Promise.all(data.map((product) => product.getCurrentStock())))
-
-    console.log(registeredProductsWithStocks)
 })
