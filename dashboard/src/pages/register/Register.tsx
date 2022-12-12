@@ -1,22 +1,19 @@
-// import { useNavigate } from "react-router-dom";
-
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchRegister, fetchRegisterError } from '../../store/actions/AuthAction';
+import { Container, Grid, Box, Snackbar, Alert } from '@mui/material';
+import { Login } from '@mui/icons-material';
 
 import { useNavigate } from 'react-router-dom';
-
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { clearAuthError, fetchRegister, fetchRegisterError } from '../../store/actions/AuthAction';
 import { Form } from '../../components/form';
 import { InputType } from '../../components/form/inputs/IInputs';
-
-import { Container, Grid, Box } from '@mui/material';
-import { Login } from '@mui/icons-material';
 
 const Register = () => {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     const { error, message } = useAppSelector(state => state.auth);
-    // const navigate = useNavigate();
+
+    const handleClose = () => dispatch(clearAuthError())
 
     function handleRegister(values: any) {
         if (values.password !== values.password_confirm)
@@ -28,6 +25,12 @@ const Register = () => {
         }));
     };
 
+    const loginAccount = () => (
+        <div className="flex-row" style={{justifyContent: "flex-start", width: "100%"}}>
+            <h5 onClick={() => navigate('/login')}>You have already an account ?</h5>
+        </div>
+    );
+
     return (
         <Container fixed sx={{ display: 'flex', justifyContent: 'center' }}>
                         
@@ -37,13 +40,14 @@ const Register = () => {
                     
                     <Box className="flex-center flex-column">
                         
-                        {/* <Box className="flex-center" sx={{
-                            maxWidth: { xs: 150, md: 200},
-                            paddingBottom: "30px"
+                        <Box className="flex-center flex-column" sx={{
+                            maxWidth: { xs: 250, md: 300},
+                            paddingBottom: { xs: "30px", md: "60px"}
                         }}>
-                            <img width="100%" src={cashManagerLogo} />
-                        </Box> */}
-                    
+                            <h1>Cash Manager</h1>
+                            <span>Epitech Project</span>
+                        </Box>
+
                         <Form 
                             initialValues={{firstName: "", lastName: "", email: "", password: "", password_confirm: ""}}
                             inputs={[
@@ -72,6 +76,7 @@ const Register = () => {
                                 icon: <Login />,
                                 text: "S'inscrire"
                             }}
+                            EndText={loginAccount}
                             onSubmit={(values: any) => handleRegister(values)}
                         />
 
@@ -81,6 +86,12 @@ const Register = () => {
                 </Grid>
 
             </Grid>
+
+            <Snackbar anchorOrigin={{vertical: 'top', horizontal: 'center'}} open={error} autoHideDuration={6000} onClose={handleClose}>
+                <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+                    {message}
+                </Alert>
+            </Snackbar>
 
         </Container>
     )

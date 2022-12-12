@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-d
 import ProtectedRoute from './ProtectedRoute';
 
 import { Dashboard } from '../pages/dashboard';
+import { UsersView, ProfileView } from '../pages/users';
 import Login from '../pages/login/Login';
 import Register from '../pages/register/Register';
 
@@ -13,6 +14,8 @@ const AppRouter = () => {
 			<Routes>
 				<Route element={<ProtectedRoute requireAuth={true} />}>
 					<Route path="/dashboard" element={<Dashboard />} />
+					<Route path="/users" element={<UsersView />} />
+					<Route path="/users/:userId" element={<ProfileView />} />
 				</Route>
 
 				<Route element={<ProtectedRoute requireAuth={false} redirectPath={'dashboard'} />}>

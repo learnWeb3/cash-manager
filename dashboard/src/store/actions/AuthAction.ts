@@ -28,6 +28,7 @@ export const fetchRegisterError = createAction(AuthActionTypes.FETCH_REGISTER_ER
 export interface TFetchRefreshTokenPayload {
     refreshToken: string;
     onSuccess: () => void;
+    onError: () => void;
 }
 
 export const fetchRefreshToken = createAction(AuthActionTypes.FETCH_REFRESH_TOKEN, withPayloadType<TFetchRefreshTokenPayload>());

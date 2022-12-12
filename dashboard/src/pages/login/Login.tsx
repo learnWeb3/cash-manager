@@ -15,6 +15,8 @@ const Login = () => {
 
     const { error, message } = useAppSelector(state => state.auth);
 
+    const handleClose = () => dispatch(clearAuthError())
+
     const handleLogin = (values: any) => {
         dispatch(
             fetchLogin({
@@ -24,31 +26,28 @@ const Login = () => {
         );
     };
 
-    const passwordRecovery = () => (
+    const registerAccount = () => (
         <div className="flex-row" style={{justifyContent: "flex-start", width: "100%"}}>
-            <h5>Mot de passe oublié ?</h5>
+            <h5 onClick={() => navigate('/register')}>You don't have any account ?</h5>
         </div>
     );
 
-    const handleClose = () => {
-        dispatch(clearAuthError())
-    }
-
     return (
         <Container fixed sx={{ display: 'flex', justifyContent: 'center' }}>
-            
+
             <Grid container justifyContent="center" alignItems="center" >
                 
                 <Grid item md={5} xs={12} sx={{ borderRadius: "20px", backgroundColor: "#fff", padding: "50px 0px" }}>
                     
                     <Box className="flex-center flex-column">
                         
-                        {/* <Box className="flex-center" sx={{
-                            maxWidth: { xs: 150, md: 200},
+                        <Box className="flex-center flex-column" sx={{
+                            maxWidth: { xs: 250, md: 300},
                             paddingBottom: { xs: "30px", md: "60px"}
                         }}>
-                            <img width="100%" src={cashManagerLogo} />
-                        </Box> */}
+                            <h1>Cash Manager</h1>
+                            <span>Epitech Project</span>
+                        </Box>
                     
                         <Form
                             initialValues={{email: "", password: ""}}
@@ -67,7 +66,7 @@ const Login = () => {
                                 icon: <LoginIcon />,
                                 text: "Connexion"
                             }}
-                            EndText={passwordRecovery}
+                            EndText={registerAccount}
                             onSubmit={(values: any) => handleLogin(values)}
                         />
 

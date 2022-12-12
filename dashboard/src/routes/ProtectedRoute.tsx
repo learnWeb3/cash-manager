@@ -19,7 +19,7 @@ const ProtectedRoute = ({ requireAuth, requireAdmin = false, redirectPath = '/lo
     return (
 		<>
 			{/* { connected && <ClientSockets/>} */}
-			{ requireAdmin && user && user.role != "ADMIN" && <Navigate to={redirectPath.toString()} replace /> }
+			{ requireAdmin && user && user.role !== "ADMIN" && <Navigate to={redirectPath.toString()} replace /> }
 			{ requireAuth && <Sidebar />}
 			<Outlet/>
 		</>

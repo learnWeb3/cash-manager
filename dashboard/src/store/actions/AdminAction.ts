@@ -14,4 +14,18 @@ export const fetchUserList = createAction(AdminActionTypes.FETCH_USER_LIST, with
 export const fetchUserListSuccess = createAction(AdminActionTypes.FETCH_USER_LIST_SUCCESS, withPayloadType<TFetchUserListSuccessPayload>());
 export const fetchUserListError = createAction(AdminActionTypes.FETCH_USER_LIST_ERROR, withPayloadType<TFetchErrorPayload>());
 
+export interface TFetchOneUserPayload {
+    _id: string
+}
+
+export interface TFetchOneUserSuccessPayload {
+    success: boolean,
+    status: number,
+    user: IUser
+}
+
+export const fetchOneUser = createAction(AdminActionTypes.FETCH_ONE_USER, withPayloadType<TFetchOneUserPayload>());
+export const fetchOneUserSuccess = createAction(AdminActionTypes.FETCH_ONE_USER_SUCCESS, withPayloadType<TFetchOneUserSuccessPayload>());
+export const fetchOneUserError = createAction(AdminActionTypes.FETCH_ONE_USER_ERROR, withPayloadType<TFetchErrorPayload>());
+
 export const clearAdminError = createAction(AdminActionTypes.CLEAR_ADMIN_ERROR, withoutPayloadType());

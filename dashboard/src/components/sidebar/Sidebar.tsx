@@ -1,6 +1,6 @@
 import { ReactElement, useState } from 'react';
 import { Toolbar, IconButton, AppBar, Box, Drawer } from '@mui/material';
-import { Group, Menu, Inventory } from '@mui/icons-material';
+import { Group, Menu, Inventory, Dashboard } from '@mui/icons-material';
 
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -21,10 +21,15 @@ const Navbar = () => {
         {
             active: '/dashboard',
             path: '/dashboard',
+            icon: <Dashboard />
+        }, 
+        {
+            active: '/users',
+            path: '/users',
             icon: <Group />
         }, 
         {
-            active: 'stocks',
+            active: '/stocks',
             path: '/stocks',
             icon: <Inventory />
         }
@@ -40,7 +45,7 @@ const Navbar = () => {
         <div>
             <Toolbar>
                 <div style={{display: 'flex', justifyContent: 'center', height: '10vh', width: `${drawerWidth}px`}}>
-                    {/* <img style={{ marginTop: "10px", marginLeft: "-6px", width: "55px"} } src={cashManagerLogo}/> */}
+                    <h1>CM</h1>
                 </div>
             </Toolbar>
             <div  style={{display: 'flex', flexDirection: 'column', justifyContent: 'center',  height: "85vh"}} >

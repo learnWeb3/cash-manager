@@ -1,8 +1,14 @@
 
 import { Box, Typography, Link, Breadcrumbs, Stack } from '@mui/material'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import UserLists from './UsersList';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { fetchUserList } from '../../store/actions/AdminAction';
+import { useEffect } from 'react';
 
-export default function Dashbaord() {
+export default function UsersView() {
+	const dispatch = useAppDispatch();
+	const users = useAppSelector(state => state.admin.users);
 
     function handleClick(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) {
         event.preventDefault();
@@ -18,6 +24,11 @@ export default function Dashbaord() {
         </Typography>,
     ];
 
+	useEffect(() => {
+		if (!users)
+			dispatch(fetchUserList({}));
+	}, []);
+
 	return (
 		<Box sx={{ display: 'flex', width: '100%' }}>
 			<Box component="main" sx={{ flexGrow: 1, p: 5 }}>
@@ -30,7 +41,8 @@ export default function Dashbaord() {
 						{breadcrumbs}
 					</Breadcrumbs>
 				</Stack>
-
+			
+				{users && <UserLists rows={users}/> }
 			</Box>
 		</Box>
 	);

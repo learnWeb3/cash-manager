@@ -23,7 +23,7 @@ const Input = (props: InputProps) => {
                     height: 45,
                     width: { xs: 280, md: 360 }
                 }}
-                endAdornment={ props.type == "password" &&
+                endAdornment={ props.type === "password" &&
                     <InputAdornment position="end">
                         <IconButton
                             aria-label="toggle password visibility"

@@ -1,15 +1,17 @@
 import { createReducer } from '@reduxjs/toolkit';
 import IUser from '../../types/IUser';
-import { fetchUserList, fetchUserListSuccess, fetchUserListError, clearAdminError } from '../actions/AdminAction';
+import { fetchUserList, fetchUserListSuccess, fetchUserListError, clearAdminError, fetchOneUser, fetchOneUserSuccess, fetchOneUserError } from '../actions/AdminAction';
 
 interface AdminState {
 	users: IUser[] | null,
+	user: IUser | null,
 	error: boolean,
 	message: string
 }
 
 const initialState: AdminState = {
 	users: null,
+	user: null,
 	error: false,
 	message: ""
 };
@@ -30,6 +32,17 @@ const AdminReducer = createReducer(initialState, (builder) =>
 		.addCase(clearAdminError, (state, action) => {
 			state.error = false;
 			state.message = "";
+		})
+		.addCase(fetchOneUser, (state) => {
+			state.error = false;
+			state.message = "";
+		})
+		.addCase(fetchOneUserSuccess, (state, action) => {
+            state.user = action.payload.user;
+		})
+		.addCase(fetchOneUserError, (state, action) => {
+			state.error = true;
+			state.message = action.payload.message;
 		})
 );
 

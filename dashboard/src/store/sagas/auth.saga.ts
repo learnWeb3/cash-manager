@@ -33,8 +33,9 @@ function* fetchRefreshTokenSaga(action: ReturnType<typeof fetchRefreshToken>): G
 	try {
 		const response: any = (yield call(Auth.userRefreshTokenService, { ...action.payload }));
 		yield put(fetchRefreshTokenSuccess(response["session"] as ISession));
-		// action.payload.onSuccess();
+		action.payload.onSuccess();
 	} catch (error) {
+		action.payload.onError();
 		yield put(fetchRefreshTokenError({message: (error as ApiError).message}));
 	}
 }

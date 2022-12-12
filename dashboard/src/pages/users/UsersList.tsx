@@ -1,14 +1,17 @@
 
 import { useState } from 'react';
-import { Grid, TableContainer, Table, TableCell, TableRow, TableHead, TableBody, Paper } from '@mui/material'
+import { Grid, TableContainer, Table, TableCell, TableRow, TableHead, TableBody, Paper, IconButton } from '@mui/material'
 import SearchBar from '../../components/form/inputs/SearchBar';
 import IUser from '../../types/IUser';
+import { useNavigate } from 'react-router-dom';
+import { Close, RemoveRedEyeOutlined } from '@mui/icons-material';
 
 interface UserListsProps {
 	rows: IUser[];
 }
 
 export default function UserLists(props: UserListsProps) {
+    const navigate = useNavigate();
 	const [rows, setRows] = useState<IUser[]>(props.rows);
 	const [searched, setSearched] = useState<string>("");
   
@@ -39,7 +42,8 @@ export default function UserLists(props: UserListsProps) {
                     <TableHead>
                         <TableRow>
                             <TableCell>Username</TableCell>
-                            <TableCell align="right">Email</TableCell>
+                            <TableCell>Email</TableCell>
+                            <TableCell>Role</TableCell>
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
                     </TableHead>
@@ -52,8 +56,22 @@ export default function UserLists(props: UserListsProps) {
                         <TableCell component="th" scope="row">
                             {row.name.first} {row.name.last}
                         </TableCell>
-                        <TableCell align="right">{row.email.address}</TableCell>
-                        <TableCell align="right">XX</TableCell>
+                        <TableCell>{row.email.address}</TableCell>
+                        <TableCell component="th" scope="row">{row.role}</TableCell>
+                        <TableCell align="right">
+                            <IconButton
+                                color="primary"
+                                onClick={() => navigate('/users/'+row._id)}
+                            >
+                                <RemoveRedEyeOutlined />
+                            </IconButton>
+                            <IconButton
+                                color="error"
+                                onClick={() => {}}
+                            >
+                                <Close />
+                            </IconButton>
+                        </TableCell>
                         </TableRow>
                     ))}
                     </TableBody>

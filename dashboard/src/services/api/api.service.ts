@@ -1,9 +1,9 @@
 import axios from "axios";
 import env from "../env.service";
 import { IErrorResponse } from "../../types/IResponse";
-import { LocalKey } from "../localStorage.service";
 import { store } from '../../store';
 import { fetchRefreshToken } from "../../store/actions/AuthAction";
+import Auth from "./auth.service";
 
 export const api = axios.create();
 
@@ -36,7 +36,6 @@ export class ApiError extends Error {
 
 api.interceptors.request.use((config) => {
     const { auth } = store.getState();
-    console.log("bearer", auth.session?.accessToken)
     if (auth.session?.accessToken)
         config.headers = {
             ...config.headers,
@@ -67,10 +66,10 @@ api.interceptors.response.use(
             if (response.errors.map(row => row.code).join(',').includes("SESSION_TOKEN_EXPIRED")) {
                 const { auth } = store.getState();
                 console.log(auth.session)
-                console.log("HEYYYYYYY")
                 return store.dispatch(fetchRefreshToken({
                     refreshToken: auth.session.refreshToken,
-                    onSuccess: () => api.request(err.config)
+                    onSuccess: () => api.request(err.config),
+                    onError: () => Auth.logOut()
                 }));
             }
 
@@ -105,6 +104,7 @@ const Api = {
     },
 
     get<R>(path: string) {
+        console.log(`${env.API_URL + path}`)
         return api.get<R>(`${env.API_URL}${path}`);
     },
 

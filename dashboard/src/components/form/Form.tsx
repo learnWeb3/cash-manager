@@ -1,12 +1,11 @@
 import { IFormInput, InputType } from './inputs/IInputs';
 import EmailInput from './inputs/EmailInput';
 import PasswordInput from './inputs/PasswordInput';
-import { ReactComponentElement, useState } from 'react';
+import { useState } from 'react';
 import Input from './inputs/Input';
 import NameInput from './inputs/NameInput';
 
 import LoadingButton from '@mui/lab/LoadingButton';
-import { SvgIconComponent } from '@mui/icons-material';
 
 interface IForm {
     initialValues: any,
@@ -23,7 +22,7 @@ const Form = ({initialValues, inputs = [], button = undefined, EndText = undefin
 
     const [values, setValues] = useState<any>(initialValues);
     const [isSubmit, setSubmited] = useState<boolean>(false);
-    const [isLoading, setLoading] = useState<boolean>(false);
+    // const [isLoading, setLoading] = useState<boolean>(false);
     
     const handleFormSubmit = async(event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -101,7 +100,6 @@ const Form = ({initialValues, inputs = [], button = undefined, EndText = undefin
                     default:
                         break;
                 }
-
             })}
 
             { EndText && <EndText></EndText> }
