@@ -6,6 +6,7 @@ import productsRouter from './products.router';
 import mediasRouter from './medias.router';
 import ticketsRouter from './tickets.router';
 import productCategoriesRouter from './product-categories.router';
+import analyticsRouter from './analytics.router';
 
 const router = express.Router();
 
@@ -16,5 +17,6 @@ router.use('/products', productsRouter)
 router.use('/tickets', ticketsRouter)
 router.use('/medias', mediasRouter)
 router.use('/inventories', inventoriesRouter)
+router.use('/analytics', analyticsRouter)
 
 export default router;

@@ -1,16 +1,18 @@
 import express from 'express';
-import { ticketsController } from '../controllers';
 import analyticsController from '../controllers/analytics.controller';
-import { bearerTokenHandler, authorizeBodyParams, validateBodyParams, requireBodyParams } from '../services/middlewares';
-import { mergeValidate, validateArray, validateEach, validateObject, validateRequired, ValidatorFunction } from '../validators';
+import { bearerTokenHandler, authorizeQueryParams } from '../services/middlewares';
 
-const ticketsRouter = express.Router();
+const analyticsRouter = express.Router();
 
 
-ticketsRouter
+analyticsRouter
     .use(bearerTokenHandler)
     .get('/',
+        authorizeQueryParams({
+            start: true,
+            end: true
+        }),
         analyticsController.getAnalytics
     )
 
-export default ticketsRouter;
+export default analyticsRouter;

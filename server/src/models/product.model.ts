@@ -6,6 +6,7 @@ import { ProductCategory } from './product-category.model';
 import { ClosingInventoryProduct } from './closing-product-inventory';
 import { InventoryProduct, InventoryProductDocument } from './inventory-product.model';
 import { TicketProduct, TicketProductDocument } from './ticket-products.model';
+import { ObjectID } from 'bson';
 
 const { Types: { String, ObjectId, Number, Boolean } } = Schema
 
@@ -40,6 +41,7 @@ export interface ProductModel extends Model<IProduct, {}, ProductMethods, Produc
     category: string,
   }): Promise<ProductDocument>
   ammendOnePrice(id: string, price: number): Promise<ProductDocument>
+  findAllWithCurrentStockAndPrice(filters: { [key: string]: any }): Promise<ProductDocument[]>,
   findOneWithCurrentPrice(filters: { [key: string]: any }): Promise<ProductDocument>,
   findOneWithCurrentPriceAndStock(filters: { [key: string]: any }): Promise<ProductDocument>,
   removeOne(id: string): Promise<ProductDocument>,
@@ -88,14 +90,7 @@ ProductSchema.virtual('prices', {
   foreignField: 'product'
 })
 
-ProductSchema.virtual('currentPrice', {
-  ref: 'ProductPrice',
-  localField: '_id',
-  foreignField: 'product',
-  justOne: true,
-  match: { sort: { createdAt: -1 }, limit: 1, },
-
-})
+ProductSchema.virtual('currentPrice')
 
 ProductSchema.virtual('currentStock')
 
@@ -144,18 +139,104 @@ ProductSchema.method('getCurrentStock', async function () {
   return this
 });
 
+ProductSchema.static('findAllWithCurrentStockAndPrice', async function (filters): Promise<ProductDocument[]> {
+  if (filters._id) {
+    filters._id = new ObjectID(filters._id)
+  }
+  if (filters.category) {
+    filters.category = new ObjectID(filters.category)
+  }
 
+  if (filters.deleted) {
+    filters.deleted = filters.deleted === '0' ? false : true
+  }
 
-ProductSchema.static('findOneWithCurrentPrice', async function (filters) {
-  return await this.findOne(filters).populate({
-    path: 'currentPrice'
-  })
+  const data = await this.aggregate([
+    {
+      $match: filters
+    },
+    {
+      $project: {
+        id: { $toObjectId: "$_id" },
+        category: { $toObjectId: "$category" },
+        createdAt: 1,
+        label: 1,
+        unit: 1,
+        deleted: 1
+      }
+    },
+    {
+      $lookup: {
+        from: ProductPrice.collection.name,
+        localField: "_id",
+        foreignField: "product",
+        let: { createdAt: "$createdAt" },
+        pipeline: [
+          { $sort: { createdAt: -1 } },
+          { $limit: 1 }
+        ],
+        as: "prices"
+      }
+    },
+    { $addFields: { currentPrice: { $first: "$prices" } } },
+    {
+      $project: {
+        prices: 0
+      }
+    },
+  ]).exec()
+
+  return await Promise.all(data.map((product) => new Product(product).getCurrentStock()))
+})
+
+ProductSchema.static('findOneWithCurrentPrice', async function (filters): Promise<ProductDocument> {
+
+  if (filters._id) {
+    filters._id = new ObjectID(filters._id)
+  }
+  if (filters.category) {
+    filters.category = new ObjectID(filters.category)
+  }
+  const data = await this.aggregate([
+    {
+      $match: filters
+    },
+    {
+      $project: {
+        id: { $toObjectId: "$_id" },
+        category: { $toObjectId: "$category" },
+        createdAt: 1,
+        label: 1,
+        unit: 1,
+        deleted: 1
+      }
+    },
+    {
+      $lookup: {
+        from: ProductPrice.collection.name,
+        localField: "_id",
+        foreignField: "product",
+        let: { createdAt: "$createdAt" },
+        pipeline: [
+          { $sort: { createdAt: -1 } },
+          { $limit: 1 }
+        ],
+        as: "prices"
+      }
+    },
+    { $addFields: { currentPrice: { $first: "$prices" } } },
+    {
+      $project: {
+        prices: 0
+      }
+    },
+  ]).exec()
+
+  return data.length ? new this(data[0]) : null
 })
 
 ProductSchema.static('findOneWithCurrentPriceAndStock', async function (filters) {
-  return await this.findOne(filters).populate({
-    path: 'currentPrice'
-  })
+  return await this.findOneWithCurrentPrice(filters)
     .then(async (product) => await product.getCurrentStock())
 })
 
@@ -238,11 +319,7 @@ ProductSchema.static('ammendOnePrice', async function (id: string, price: number
     price
   })
 
-  console.log(newProductPrice)
-
-  const test = await newProductPrice.save();
-
-  console.log(test)
+  await newProductPrice.save();
   return await this.findOneWithCurrentPriceAndStock({
     _id: id,
     deleted: false

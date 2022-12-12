@@ -11,10 +11,7 @@ export default {
         })
     },
     getMany: async (req: Request, res: Response, next: NextFunction) => {
-        return Product.find(req.query).populate({
-            path: 'currentPrice'
-        }).then(async (data) => {
-            data = await Promise.all(data.map((product) => product.getCurrentStock()))
+        return Product.findAllWithCurrentStockAndPrice(req.query).then(async (data) => {
             res.status(200).json(data);
         }).catch((error) => {
             next(new HttpException(400, APIErrorType.API_BAD_REQUEST, error.message))
