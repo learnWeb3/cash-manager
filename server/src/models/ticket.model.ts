@@ -7,6 +7,7 @@ import User from './user.model';
 import { ProductPrice } from './product-price.model';
 import { ObjectId } from 'mongoose';
 import { InventoryProduct } from './inventory-product.model';
+import { ProductCategory } from './product-category.model';
 
 const { Types: { String, ObjectId, Number, Boolean } } = Schema
 
@@ -77,6 +78,14 @@ export interface TicketModel extends Model<ITicket, {}, TicketMethods> {
       }
     }
   }): Promise<any>
+  getProductsByCategories(filterQueryPart: {
+    $match: {
+      createdAt: {
+        $gte: Date,
+        $lte: Date
+      }
+    }
+  })
 }
 
 export type TicketDocument = HydratedDocument<ITicket, TicketMethods, TicketVirtuals>
@@ -131,6 +140,55 @@ TicketSchema.static('findOneWithUserAndProducts', async function (filters) {
       path: 'products',
       populate: 'product'
     })
+})
+
+TicketSchema.static('getProductsByCategories', async function (filterQueryPart: {
+  $match: {
+    createdAt: {
+      $gte: Date,
+      $lte: Date
+    }
+  }
+}) {
+
+  // product coufnt by categories
+  return await Product.aggregate([
+    filterQueryPart,
+    {
+      $lookup: {
+        from: ProductCategory.collection.name,
+        localField: "category",
+        foreignField: "_id",
+        as: "categories"
+      }
+    },
+    {
+      $addFields: {
+        category: { $first: "$categories" }
+      }
+    },
+    {
+      $project: {
+        categories: 0
+      }
+    },
+    {
+      $group: {
+        _id: "$category._id",
+        count: { $sum: 1 },
+        categories: {
+          $push: "$category"
+        }
+      }
+    },
+    {
+      $project: {
+        count: 1,
+        category: { $first: "$categories" }
+      }
+    }
+  ])
+
 })
 
 TicketSchema.static('getRevenue', async function (filterQueryPart: {
@@ -243,7 +301,7 @@ TicketSchema.static('getDailyRevenue', async function (filterQueryPart: {
     },
     { $project: { prices: 0, _id: 1 } },
     {
-      $sort: {_id: -1}
+      $sort: { _id: -1 }
     }
   ]).exec();
 })
@@ -528,14 +586,15 @@ TicketSchema.static('getAnalytics', async function (periodicity: {
   const productsRankedBySalesVolume = await this.getProductsRankedBySalesVolume(filterQueryPart)
   const productsRankedBySalesValue = await this.getProductsRankedBySalesValue(filterQueryPart)
   const productsRankedByGrossProfitContribution = await this.getProductsRankedByGrossProfitContribution(filterQueryPart)
-
-  console.log(daylyPeriodRevenue.length)
+  const productsByCategories = await this.getProductsByCategories(filterQueryPart)
+  
   return ({
     periodTotalRevenue,
     daylyPeriodRevenue,
     productsRankedBySalesVolume,
     productsRankedBySalesValue,
     productsRankedByGrossProfitContribution,
+    productsByCategories
   })
 
 
