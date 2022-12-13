@@ -27,17 +27,20 @@ productsRouter
         authorizeBodyParams({
             unit: true,
             label: true,
-            category: true
+            category: true,
+            ref: true
         }),
         requireBodyParams({
             unit: true,
             label: true,
-            category: true
+            category: true,
+            ref: true
         }),
         validateBodyParams({
             unit: validateProductUnit,
             label: validateRequired,
             category: validateRequired,
+            ref: validateRequired,
         }),
         productsController.register
     )
@@ -52,12 +55,14 @@ productsRouter
         authorizeBodyParams({
             unit: true,
             label: true,
-            category: true
+            category: true,
+            ref: true
         }),
         validateBodyParams({
             unit: validateRequired,
             label: validateRequired,
             category: validateNumber,
+            ref: validateRequired
         }),
         productsController.ammendOne
     )

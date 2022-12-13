@@ -9,6 +9,7 @@ import AdminReducer from './reducers/admin.reducer';
 import rootSaga from "./sagas";
 
 import env from '../services/env.service';
+import AnalyticsReducer from './reducers/analytics.reducer';
 
 const sagaMiddleware = createSagaMiddleware();
 
@@ -17,7 +18,8 @@ export const store = configureStore({
     reducer: {
         auth: AuthReducer,
         admin: AdminReducer,
-        user: UserReducer
+        user: UserReducer,
+        analytics: AnalyticsReducer
     },
     preloadedState: LocalStorage.load(),
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().prepend(sagaMiddleware)

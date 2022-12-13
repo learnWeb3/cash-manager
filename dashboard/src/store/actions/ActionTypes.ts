@@ -1,5 +1,5 @@
 export interface TFetchErrorPayload {
-	message: string;
+    message: string;
 }
 
 export enum AuthActionTypes {
@@ -33,6 +33,7 @@ export enum AdminActionTypes {
     FETCH_USER_LIST = "FETCH_USER_LIST",
     FETCH_USER_LIST_SUCCESS = "FETCH_USER_LIST_SUCCESS",
     FETCH_USER_LIST_ERROR = "FETCH_USER_LIST_ERROR",
+    FETCH_ANALYTICS = "FETCH_ANALYTICS",
 
 
     FETCH_ONE_USER = "FETCH_ONE_USER",

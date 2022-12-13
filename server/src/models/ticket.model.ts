@@ -6,9 +6,7 @@ import { Product } from './product.model';
 import User from './user.model';
 import { ProductPrice } from './product-price.model';
 import { ObjectId } from 'mongoose';
-import { ObjectID } from 'bson';
-import { InventoryProduct, InventoryProductDocument } from './inventory-product.model';
-import { resourceLimits } from 'worker_threads';
+import { InventoryProduct } from './inventory-product.model';
 
 const { Types: { String, ObjectId, Number, Boolean } } = Schema
 
@@ -38,6 +36,46 @@ export interface TicketModel extends Model<ITicket, {}, TicketMethods> {
   getAnalytics(periodicity: {
     start: number,
     end: number
+  }): Promise<any>,
+  getRevenue(filterQueryPart: {
+    $match: {
+      createdAt: {
+        $gte: Date,
+        $lte: Date
+      }
+    }
+  }): Promise<any>
+  getDailyRevenue(filterQueryPart: {
+    $match: {
+      createdAt: {
+        $gte: Date,
+        $lte: Date
+      }
+    }
+  }): Promise<any>
+  getProductsRankedBySalesVolume(filterQueryPart: {
+    $match: {
+      createdAt: {
+        $gte: Date,
+        $lte: Date
+      }
+    }
+  }): Promise<any>
+  getProductsRankedBySalesValue(filterQueryPart: {
+    $match: {
+      createdAt: {
+        $gte: Date,
+        $lte: Date
+      }
+    }
+  }): Promise<any>
+  getProductsRankedByGrossProfitContribution(filterQueryPart: {
+    $match: {
+      createdAt: {
+        $gte: Date,
+        $lte: Date
+      }
+    }
   }): Promise<any>
 }
 
@@ -95,22 +133,16 @@ TicketSchema.static('findOneWithUserAndProducts', async function (filters) {
     })
 })
 
-TicketSchema.static('getAnalytics', async function (periodicity: {
-  start: number,
-  end: number
-}) {
-
-  const filterQueryPart = {
-    $match: {
-      createdAt: {
-        $gte: new Date(new Date(periodicity.start).toISOString()),
-        $lte: new Date(new Date(periodicity.end).toISOString())
-      }
+TicketSchema.static('getRevenue', async function (filterQueryPart: {
+  $match: {
+    createdAt: {
+      $gte: Date,
+      $lte: Date
     }
   }
-
+}) {
   // total revenue on period (sum tickets value) 
-  const periodTotalRevenue = await TicketProduct.aggregate([
+  return await TicketProduct.aggregate([
     filterQueryPart,
     { $project: { product: { $toObjectId: "$product" }, createdAt: 1 } },
     {
@@ -145,11 +177,30 @@ TicketSchema.static('getAnalytics', async function (periodicity: {
     },
     { $project: { prices: 0, _id: 0 } },
   ]).exec();
+})
 
+TicketSchema.static('getDailyRevenue', async function (filterQueryPart: {
+  $match: {
+    createdAt: {
+      $gte: Date,
+      $lte: Date
+    }
+  }
+}) {
   // // daily revenue on period
-  const daylyPeriodRevenue = await TicketProduct.aggregate([
+  return await TicketProduct.aggregate([
     filterQueryPart,
     { $project: { product: { $toObjectId: "$product" }, createdAt: 1 } },
+    {
+      $densify: {
+        field: "createdAt",
+        range: {
+          step: 1,
+          unit: "hour",
+          bounds: [filterQueryPart.$match.createdAt.$gte, filterQueryPart.$match.createdAt.$lte]
+        }
+      }
+    },
     {
       $lookup: {
         from: ProductPrice.collection.name,
@@ -190,11 +241,25 @@ TicketSchema.static('getAnalytics', async function (periodicity: {
         sum: { $sum: "$price" },
       }
     },
-    { $project: { prices: 0, _id: 1 } }
+    { $project: { prices: 0, _id: 1 } },
+    {
+      $sort: {_id: -1}
+    }
   ]).exec();
+})
+
+
+TicketSchema.static('getProductsRankedBySalesVolume', async function (filterQueryPart: {
+  $match: {
+    createdAt: {
+      $gte: Date,
+      $lte: Date
+    }
+  }
+}) {
 
   // // rank products according the sales in volume
-  const productsRankedBySalesVolume = await TicketProduct.aggregate([
+  return await TicketProduct.aggregate([
     filterQueryPart,
     { $project: { product: { $toObjectId: "$product" }, quantity: 1 } },
     {
@@ -225,8 +290,18 @@ TicketSchema.static('getAnalytics', async function (periodicity: {
     }
   ]).exec();
 
-  // // rank products according the sales in volume
-  const productsRankedBySalesValue = await TicketProduct.aggregate([
+})
+
+TicketSchema.static('getProductsRankedBySalesValue', async function (filterQueryPart: {
+  $match: {
+    createdAt: {
+      $gte: Date,
+      $lte: Date
+    }
+  }
+}) {
+  // rank products according the sales in volume
+  return await TicketProduct.aggregate([
     filterQueryPart,
     { $project: { product: { $toObjectId: "$product" }, createdAt: 1, quantity: 1 } },
     {
@@ -280,9 +355,18 @@ TicketSchema.static('getAnalytics', async function (periodicity: {
       }
     }
   ]).exec();
+})
 
+TicketSchema.static('getProductsRankedByGrossProfitContribution', async function (filterQueryPart: {
+  $match: {
+    createdAt: {
+      $gte: Date,
+      $lte: Date
+    }
+  }
+}) {
   // rank products according to their contribution to the shop gross profit
-  const productsRankedByGrossProfitContribution = await TicketProduct.aggregate([
+  return await TicketProduct.aggregate([
     filterQueryPart,
     { $project: { product: { $toObjectId: "$product" }, createdAt: 1, quantity: 1 } },
     {
@@ -422,6 +506,30 @@ TicketSchema.static('getAnalytics', async function (periodicity: {
     });
 
 
+})
+
+
+TicketSchema.static('getAnalytics', async function (periodicity: {
+  start: number,
+  end: number
+}) {
+
+  const filterQueryPart = {
+    $match: {
+      createdAt: {
+        $gte: new Date(new Date(periodicity.start).toISOString()),
+        $lte: new Date(new Date(periodicity.end).toISOString())
+      }
+    }
+  }
+
+  const periodTotalRevenue = await this.getRevenue(filterQueryPart)
+  const daylyPeriodRevenue = await this.getDailyRevenue(filterQueryPart)
+  const productsRankedBySalesVolume = await this.getProductsRankedBySalesVolume(filterQueryPart)
+  const productsRankedBySalesValue = await this.getProductsRankedBySalesValue(filterQueryPart)
+  const productsRankedByGrossProfitContribution = await this.getProductsRankedByGrossProfitContribution(filterQueryPart)
+
+  console.log(daylyPeriodRevenue.length)
   return ({
     periodTotalRevenue,
     daylyPeriodRevenue,

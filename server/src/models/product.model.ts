@@ -13,6 +13,7 @@ const { Types: { String, ObjectId, Number, Boolean } } = Schema
 interface IProduct {
   unit: ProductUnit
   category: typeof ObjectId
+  ref: string
   label: string
   deleted: boolean
   createdAt: Date
@@ -34,6 +35,7 @@ export interface ProductModel extends Model<IProduct, {}, ProductMethods, Produc
     unit: string,
     label: string,
     category: string,
+    ref: string
   }): Promise<ProductDocument>
   ammendOne(id: string, data: {
     unit: string,
@@ -63,6 +65,11 @@ const ProductSchema = new Schema<IProduct, ProductModel, ProductMethods, {}, Pro
     required: true,
     type: ObjectId,
     ref: 'ProductCategory'
+  },
+  ref: {
+    type: String,
+    required: true,
+    unique: true
   },
   label: {
     type: String,
@@ -208,7 +215,8 @@ ProductSchema.static('findOneWithCurrentPrice', async function (filters): Promis
         createdAt: 1,
         label: 1,
         unit: 1,
-        deleted: 1
+        deleted: 1,
+        ref: 1,
       }
     },
     {
@@ -251,6 +259,7 @@ ProductSchema.static('register', async function (data: {
   unit: string,
   label: string,
   category: string,
+  ref: string
 }) {
   const errors = [];
   const productCategory = await ProductCategory.exists({
@@ -274,6 +283,7 @@ ProductSchema.static('ammendOne', async function (id: string, data: {
   unit?: string,
   label?: string,
   category?: string,
+  ref?: string,
 }) {
   const errors = [];
   const product = await this.findOne({

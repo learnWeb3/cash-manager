@@ -6,7 +6,10 @@ const Admin = {
     },
 
     getUserByIdService(payload: any) {
-        return api.get(`/users/`+payload?._id);
+        return api.get(`/users/` + payload?._id);
+    },
+    getAnalytics(start: number, end: number) {
+        return api.get(`/analytics?start=${start}&end=${end}`)
     }
 };
 export default Admin;

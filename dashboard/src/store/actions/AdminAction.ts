@@ -27,5 +27,6 @@ export interface TFetchOneUserSuccessPayload {
 export const fetchOneUser = createAction(AdminActionTypes.FETCH_ONE_USER, withPayloadType<TFetchOneUserPayload>());
 export const fetchOneUserSuccess = createAction(AdminActionTypes.FETCH_ONE_USER_SUCCESS, withPayloadType<TFetchOneUserSuccessPayload>());
 export const fetchOneUserError = createAction(AdminActionTypes.FETCH_ONE_USER_ERROR, withPayloadType<TFetchErrorPayload>());
+export const fetchAnalytics = createAction(AdminActionTypes.FETCH_ANALYTICS,  withPayloadType<any>())
 
 export const clearAdminError = createAction(AdminActionTypes.CLEAR_ADMIN_ERROR, withoutPayloadType());

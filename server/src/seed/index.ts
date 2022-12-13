@@ -43,31 +43,36 @@ connectDatabase().then(async (connection) => {
     //         label: 'Tomato',
     //         category: registeredProductCategories.find((productCategory) => productCategory.label === 'fresh products').id,
     //         unit: ProductUnit.KG,
-    //         price: 2.50
+    //         price: 2.50,
+    //         ref: "0242ac120002"
     //     },
     //     {
     //         label: 'Pasta Barilla 1Kg',
     //         category: registeredProductCategories.find((productCategory) => productCategory.label === 'grocery').id,
     //         unit: ProductUnit.U,
     //         price: 1.38,
+    //         ref: "0242ac120003"
     //     },
     //     {
     //         label: 'Heineken Beer x6 pack',
     //         category: registeredProductCategories.find((productCategory) => productCategory.label === 'liquid').id,
     //         unit: ProductUnit.U,
-    //         price: 6.70
+    //         price: 6.70,
+    //         ref: "0242ac120004"
     //     },
     //     {
     //         label: 'French fries 750g',
     //         category: registeredProductCategories.find((productCategory) => productCategory.label === 'frozen').id,
     //         unit: ProductUnit.U,
-    //         price: 7.25
+    //         price: 7.25,
+    //         ref: "0242ac120005"
     //     },
     //     {
     //         label: 'Shampoo Le Petit Marseillais 350 mL',
     //         category: registeredProductCategories.find((productCategory) => productCategory.label === 'non-food products').id,
     //         unit: ProductUnit.U,
-    //         price: 4.23
+    //         price: 4.23,
+    //         ref: "0242ac120006"
     //     }
     // ]
 
@@ -75,7 +80,8 @@ connectDatabase().then(async (connection) => {
     //     const newProduct = await Product.register({
     //         unit: product.unit,
     //         label: product.label,
-    //         category: product.category
+    //         category: product.category,
+    //         ref: product.ref,
     //     })
     //     await Product.ammendOnePrice(newProduct.id, product.price)
     // }
@@ -109,10 +115,7 @@ connectDatabase().then(async (connection) => {
 
     // // register closing invebntory product
 
-    // const allProductsWithStocks = await Product.find({})
-    //     .populate({
-    //         path: 'currentPrice',
-    //     }).then(async (data) => await Promise.all(data.map((product) => product.getCurrentStock())))
+    // const allProductsWithStocks = await Product.find({}).then(async (data) => await Promise.all(data.map((product) => product.getCurrentStock())))
 
     // await ClosingInventoryProduct.register({
     //     user: registeredUser.id,
