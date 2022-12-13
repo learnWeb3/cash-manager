@@ -1,7 +1,7 @@
 import Chart from "react-apexcharts";
 import { useState } from "react";
 
-const ColumnChart = ({
+const AreaChart = ({
     width = '100%',
     xAxisCategories = ['1991', '1992', '1993', '1994', '1995', '1996', '1997', '1998'],
     series = [
@@ -26,7 +26,10 @@ const ColumnChart = ({
 }) => {
     const [options, setOptions] = useState({
         chart: {
-            type: "bar",
+            type: "area",
+        },
+        stroke: {
+            curve: 'smooth',
         },
         xaxis: {
             categories: [...xAxisCategories],
@@ -41,9 +44,9 @@ const ColumnChart = ({
                 width: "100%",
             }}
         >
-            <Chart options={options} series={series} type="bar" width={width} />
+            <Chart options={options} series={series} type="area" width={width} />
         </div>
     );
 };
 
-export default ColumnChart
+export default AreaChart

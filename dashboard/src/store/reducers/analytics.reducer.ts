@@ -3,9 +3,20 @@ import { fetchAnalytics } from '../actions/AdminAction';
 
 interface AdminState {
     ticketAnalytics: {
+        productsByCategories: {
+            "_id": string,
+            "count": number,
+            "category": {
+                "_id": string,
+                "label": string,
+                "createdAt": string,
+                "updatedAt": string,
+                "__v": number
+            }
+        }[]
         periodTotalRevenue: {
             sum: number
-        },
+        }[],
         daylyPeriodRevenue: {
             _id: string,
             sum: number
@@ -62,9 +73,10 @@ interface AdminState {
 
 const initialState: AdminState = {
     ticketAnalytics: {
-        periodTotalRevenue: {
+        productsByCategories: [],
+        periodTotalRevenue: [{
             sum: 0
-        },
+        }],
         daylyPeriodRevenue: [],
         productsRankedBySalesVolume: [],
         productsRankedBySalesValue: [],

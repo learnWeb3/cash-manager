@@ -101,7 +101,8 @@ const TicketSchema = new Schema<ITicket, TicketModel, TicketMethods, {}, TicketV
     type: String,
     required: true,
     default: TicketStatus.PENDING
-  }
+  },
+  createdAt: { type: Date, default: Date.now }
 }, {
   timestamps: true,
   toJSON: {
@@ -202,7 +203,7 @@ TicketSchema.static('getRevenue', async function (filterQueryPart: {
   // total revenue on period (sum tickets value) 
   return await TicketProduct.aggregate([
     filterQueryPart,
-    { $project: { product: { $toObjectId: "$product" }, createdAt: 1 } },
+    { $project: { product: { $toObjectId: "$product" }, createdAt: 1, quantity: 1 } },
     {
       $lookup: {
         from: ProductPrice.collection.name,
@@ -225,12 +226,12 @@ TicketSchema.static('getRevenue', async function (filterQueryPart: {
     {
       $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$prices", 0] }, "$$ROOT"] } }
     },
-    { $addFields: { label: "sum" } },
+    { $addFields: { label: "sum", total: { $multiply: ["$price", "$quantity"] } } },
     {
       $group:
       {
         _id: "$label",
-        sum: { $sum: "$price" }
+        sum: { $sum: "$total" }
       }
     },
     { $project: { prices: 0, _id: 0 } },
@@ -248,7 +249,7 @@ TicketSchema.static('getDailyRevenue', async function (filterQueryPart: {
   // // daily revenue on period
   return await TicketProduct.aggregate([
     filterQueryPart,
-    { $project: { product: { $toObjectId: "$product" }, createdAt: 1 } },
+    { $project: { product: { $toObjectId: "$product" }, createdAt: 1, quantity: 1 } },
     {
       $densify: {
         field: "createdAt",
@@ -283,6 +284,7 @@ TicketSchema.static('getDailyRevenue', async function (filterQueryPart: {
     },
     {
       $addFields: {
+        total: { $multiply: ["$price", "$quantity"] },
         date: {
           $dateToString: {
             date: "$createdAt",
@@ -296,7 +298,7 @@ TicketSchema.static('getDailyRevenue', async function (filterQueryPart: {
       $group:
       {
         _id: "$date",
-        sum: { $sum: "$price" },
+        sum: { $sum: "$total" },
       }
     },
     { $project: { prices: 0, _id: 1 } },
@@ -587,7 +589,7 @@ TicketSchema.static('getAnalytics', async function (periodicity: {
   const productsRankedBySalesValue = await this.getProductsRankedBySalesValue(filterQueryPart)
   const productsRankedByGrossProfitContribution = await this.getProductsRankedByGrossProfitContribution(filterQueryPart)
   const productsByCategories = await this.getProductsByCategories(filterQueryPart)
-  
+
   return ({
     periodTotalRevenue,
     daylyPeriodRevenue,
