@@ -6,11 +6,11 @@ const PieChart = ({
     labels = ['Apple', 'Mango', 'Orange', 'Watermelon'],
     series = [44, 55, 13, 33],
 }) => {
+
     const [options, setOptions] = useState({
         chart: {
             type: 'donut',
         },
-        series: [...series],
         labels: [...labels]
 
     } as ApexCharts.ApexOptions);
