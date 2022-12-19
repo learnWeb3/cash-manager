@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "Cash-Manager",
+    "slug": "Cash-Manager",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "permissions": [
+        "android.permission.NFC"
+      ],
+      "package": "com.antoineleguillou.CashManager"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "react-native-nfc-manager",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow cash manager to access your camera"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "2c142af3-78a3-47d7-b3e8-e1ee84dd25cd"
+      }
+    }
+  }
+}

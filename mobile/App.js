@@ -1,9 +1,11 @@
-import { StyleSheet } from 'react-native';
-import SignIn from "./Components/SignIn"
-import Main from "./Components/Main"
+import "react-native-gesture-handler";
+import { StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Provider as PaperProvider } from 'react-native-paper';
+import { Provider as PaperProvider } from "react-native-paper";
+import { Login } from "./Components/SignIn";
+import { Main } from "./Components/Main";
+import AddProductPage from "./Components/AddProductPage";
 
 export default function App() {
   const Stack = createNativeStackNavigator();
@@ -13,7 +15,8 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           {/* { value ? <Stack.Screen name='login' component={Main} /> : <Stack.Screen name='login' component={Login} />} */}
-          <Stack.Screen name="login" component={SignIn} />
+          <Stack.Screen name="login" component={Login} />
+          <Stack.Screen name="AddProduct" component={AddProductPage} />
           <Stack.Screen name="Main" component={Main} />
         </Stack.Navigator>
       </NavigationContainer>
@@ -24,6 +27,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
 });
