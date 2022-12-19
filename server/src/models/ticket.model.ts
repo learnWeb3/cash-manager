@@ -45,6 +45,14 @@ export interface TicketModel extends Model<ITicket, {}, TicketMethods> {
       };
     };
   }): Promise<any>;
+  getTotalInventoryBuySum(filterQueryPart: {
+    $match: {
+      createdAt: {
+        $gte: Date;
+        $lte: Date;
+      };
+    };
+  }): Promise<any>;
   getDailyRevenue(filterQueryPart: {
     $match: {
       createdAt: {
@@ -201,6 +209,34 @@ TicketSchema.static(
         },
       },
     ]);
+  }
+);
+
+TicketSchema.static(
+  "getTotalInventoryBuySum",
+  async function (filterQueryPart: {
+    $match: {
+      createdAt: {
+        $gte: Date;
+        $lte: Date;
+      };
+    };
+  }) {
+    // total inventories buys on period
+    return await InventoryProduct.aggregate([
+      filterQueryPart,
+      {
+        $group: {
+          _id: null,
+          sum: { $sum: "$price" }
+        },
+      },
+      {
+        $project: {
+          _id: 0
+        },
+      },
+    ]).exec();
   }
 );
 
@@ -679,6 +715,9 @@ TicketSchema.static(
     };
 
     const periodTotalRevenue = await this.getRevenue(filterQueryPart);
+    const periodTotalInventoryBuySum = await this.getTotalInventoryBuySum(
+      filterQueryPart
+    );
     const daylyPeriodRevenue = await this.getDailyRevenue(filterQueryPart);
     const productsRankedBySalesVolume =
       await this.getProductsRankedBySalesVolume(filterQueryPart);
@@ -695,6 +734,7 @@ TicketSchema.static(
 
     return {
       periodTotalRevenue,
+      periodTotalInventoryBuySum,
       daylyPeriodRevenue,
       productsRankedBySalesVolume,
       productsRankedBySalesValue,

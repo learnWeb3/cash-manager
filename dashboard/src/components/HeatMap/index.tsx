@@ -24,27 +24,36 @@ const HeatMap = ({
     chart: {
       height: 350,
       type: "heatmap",
-      colorScale: {
-        ranges: series.map(({ data, name }, index) => {
-          return {
-            from: data.reduce(
-              (min, { y: dataPoint }) => (dataPoint < min ? dataPoint : min),
-              0
-            ),
-            to: data.reduce(
-              (max, { y: dataPoint }) => (dataPoint > max ? dataPoint : max),
-              0
-            ),
-            color: colors[index],
-            name: "low",
-          };
-        }),
+    },
+    plotOptions: {
+      heatmap: {
+        shadeIntensity: 0.5,
+        radius: 0,
+        useFillColorAsStroke: false,
+        // colorScale: {
+        //   ranges: [
+        //     {
+        //       from: 0,
+        //       to: Infinity,
+        //       name: "profit",
+        //       color: "#00A100",
+        //     },
+        //     {
+        //       from: -Infinity,
+        //       to: 0,
+        //       name: "loss",
+        //       color: "#FF0000",
+        //     },
+        //   ],
+        // },
       },
     },
     dataLabels: {
       enabled: false,
     },
-    colors,
+    stroke: {
+      width: 1,
+    }
   });
 
   return (
