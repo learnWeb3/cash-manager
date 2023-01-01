@@ -60,13 +60,14 @@ export interface ProductModel
   ammendOnePrice(id: string, price: number): Promise<ProductDocument>;
   addMedias(id: string, mediasIds: string[]): Promise<ProductDocument>;
   removeMedias(id: string, mediasIds: string[]): Promise<ProductDocument>;
-  findAllWithCurrentStockAndPrice(filters: {
+  findAllWithCurrentPriceAndStockAndMedias(filters: {
     [key: string]: any;
   }): Promise<ProductDocument[]>;
   findOneWithCurrentPrice(filters: {
     [key: string]: any;
   }): Promise<ProductDocument>;
-  findOneWithCurrentPriceAndStock(filters: {
+  findOneWithMedias(filters: { [key: string]: any }): Promise<ProductDocument>;
+  findOneWithCurrentPriceAndStockAndMedias(filters: {
     [key: string]: any;
   }): Promise<ProductDocument>;
   removeOne(id: string): Promise<ProductDocument>;
@@ -246,7 +247,7 @@ ProductSchema.static(
       await newProductMedia.save();
     }
 
-    return await this.findOneWithCurrentPriceAndStock({
+    return await this.findOneWithCurrentPriceAndStockAndMedias({
       _id: id,
       deleted: false,
     });
@@ -290,7 +291,7 @@ ProductSchema.static(
       });
     }
 
-    return await this.findOneWithCurrentPriceAndStock({
+    return await this.findOneWithCurrentPriceAndStockAndMedias({
       _id: id,
       deleted: false,
     });
@@ -298,7 +299,7 @@ ProductSchema.static(
 );
 
 ProductSchema.static(
-  "findAllWithCurrentStockAndPrice",
+  "findAllWithCurrentPriceAndStockAndMedias",
   async function (filters): Promise<ProductDocument[]> {
     if (filters._id) {
       filters._id = new ObjectID(filters._id);
@@ -327,6 +328,24 @@ ProductSchema.static(
       },
       {
         $lookup: {
+          from: ProductMedia.collection.name,
+          localField: "_id",
+          foreignField: "product",
+          pipeline: [
+            {
+              $lookup: {
+                from: Media.collection.name,
+                localField: "media",
+                foreignField: "_id",
+                as: "medias",
+              },
+            },
+          ],
+          as: "medias",
+        },
+      },
+      {
+        $lookup: {
           from: ProductPrice.collection.name,
           localField: "_id",
           foreignField: "product",
@@ -336,11 +355,6 @@ ProductSchema.static(
         },
       },
       { $addFields: { currentPrice: { $first: "$prices" } } },
-      {
-        $project: {
-          prices: 0,
-        },
-      },
     ]).exec();
 
     return await Promise.all(
@@ -395,11 +409,24 @@ ProductSchema.static(
   }
 );
 
+ProductSchema.static("findOneWithMedias", async function (filters = {}) {
+  return await this.findOne(filters).populate({
+    path: "medias",
+    populate: "media",
+  });
+});
+
 ProductSchema.static(
-  "findOneWithCurrentPriceAndStock",
+  "findOneWithCurrentPriceAndStockAndMedias",
   async function (filters) {
     return await this.findOneWithCurrentPrice(filters).then(
-      async (product) => await product.getCurrentStock()
+      async (product) =>
+        await (
+          await product.getCurrentStock()
+        ).populate({
+          path: "medias",
+          populate: "media",
+        })
     );
   }
 );
@@ -430,7 +457,7 @@ ProductSchema.static(
     }
     const newProduct = new this(data);
     const { id } = await newProduct.save();
-    return await this.findOneWithCurrentPriceAndStock({
+    return await this.findOneWithCurrentPriceAndStockAndMedias({
       _id: id,
       deleted: false,
     });
@@ -472,7 +499,7 @@ ProductSchema.static(
     }
     Object.assign(product, data);
     await product.save();
-    return await this.findOneWithCurrentPriceAndStock({
+    return await this.findOneWithCurrentPriceAndStockAndMedias({
       _id: id,
       deleted: false,
     });
@@ -499,7 +526,7 @@ ProductSchema.static(
     });
 
     await newProductPrice.save();
-    return await this.findOneWithCurrentPriceAndStock({
+    return await this.findOneWithCurrentPriceAndStockAndMedias({
       _id: id,
       deleted: false,
     });
@@ -522,7 +549,7 @@ ProductSchema.static("removeOne", async function (id: string) {
     deleted: true,
   });
   await product.save();
-  return await this.findOneWithCurrentPriceAndStock({
+  return await this.findOneWithCurrentPriceAndStockAndMedias({
     _id: id,
     deleted: true,
   });

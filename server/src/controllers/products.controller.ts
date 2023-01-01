@@ -15,7 +15,7 @@ export default {
       });
   },
   getMany: async (req: Request, res: Response, next: NextFunction) => {
-    return Product.findAllWithCurrentStockAndPrice(req.query)
+    return Product.findAllWithCurrentPriceAndStockAndMedias(req.query)
       .then(async (data) => {
         res.status(200).json(data);
       })
@@ -26,7 +26,7 @@ export default {
       });
   },
   getOne: async (req: Request, res: Response, next: NextFunction) => {
-    return Product.findOneWithCurrentPriceAndStock({
+    return Product.findOneWithCurrentPriceAndStockAndMedias({
       _id: req.params.id,
       deleted: false,
     })
