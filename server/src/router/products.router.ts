@@ -47,12 +47,14 @@ productsRouter
       label: true,
       category: true,
       ref: true,
+      description: true,
     }),
     requireBodyParams({
       unit: true,
       label: true,
       category: true,
       ref: true,
+      description: true,
     }),
     validateBodyParams({
       unit: validateProductUnit,
@@ -68,7 +70,7 @@ productsRouter
     authorizeQueryParams({
       deleted: true,
       category: true,
-      ref: true
+      ref: true,
     }),
     productsController.getMany
   )
