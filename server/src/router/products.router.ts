@@ -68,6 +68,7 @@ productsRouter
     authorizeQueryParams({
       deleted: true,
       category: true,
+      ref: true
     }),
     productsController.getMany
   )
