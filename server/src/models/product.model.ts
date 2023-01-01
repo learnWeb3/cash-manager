@@ -324,6 +324,8 @@ ProductSchema.static(
           label: 1,
           unit: 1,
           deleted: 1,
+          ref: 1,
+          description: 1,
         },
       },
       {
@@ -385,6 +387,7 @@ ProductSchema.static(
           unit: 1,
           deleted: 1,
           ref: 1,
+          description: 1,
         },
       },
       {
