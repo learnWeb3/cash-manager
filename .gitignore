@@ -2,3 +2,4 @@ node_modules
 build
 mongo_data
 public
+mongo_data_bank

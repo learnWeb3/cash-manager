@@ -8,7 +8,7 @@ services:
     env_file:
       - .env.bank.development
     depends_on:
-      - mongo
+      - mongo_bank
 
   server:
     build: ./server
@@ -32,7 +32,8 @@ services:
     env_file:
       - .dashboard.env.development
     depends_on:
-      - mongo
+      - server
+      - bank
     volumes:
       - ./dashboard/public/:/app/public/
       - ./dashboard/src/:/app/src/
@@ -47,4 +48,13 @@ services:
       - .env.database.development
     volumes:
       - ./mongo_data/:/data/db
-      - ./mongo_data/:/data/configdb
+
+  mongo_bank:
+    image: mongo:latest
+    container_name: mongo_bank
+    ports:
+      - 27019:27017
+    env_file:
+      - .env.database.bank.development
+    volumes:
+      - ./mongo_data_bank/:/data/db
