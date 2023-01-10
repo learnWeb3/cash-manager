@@ -2,6 +2,7 @@ services:
 
   bank:
     build: ./bank
+    image: cash-manager/bank
     container_name: bank
     ports:
       - 4000:4000
@@ -12,6 +13,7 @@ services:
 
   server:
     build: ./server
+    image: cash-manager/server
     container_name: server
     ports:
       - 3000:3000
@@ -26,6 +28,7 @@ services:
 
   dashboard:
     build: ./dashboard
+    image: cash-manager/dashboard
     container_name: dashboard
     ports:
       - 80:80

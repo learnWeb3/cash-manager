@@ -1,23 +1,52 @@
-import express from 'express';
-import { mediasController } from '../controllers';
-import { bearerTokenHandler } from '../services/middlewares';
-import multer from 'multer';
-import { join } from 'path';
-
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, join(process.cwd(), 'public', 'tmp'))
-    }
-})
-
-const upload = multer({ storage: storage })
+import express from "express";
+import { mediasController } from "../controllers";
+import {
+  authorizeQueryParams,
+  bearerTokenHandler,
+  requireQueryParams,
+  authorizeBodyParams,
+  requireBodyParams,
+} from "../services/middlewares";
 
 const mediasRouter = express.Router();
 
 mediasRouter
-    .use(bearerTokenHandler)
-    .post('/', upload.single('media'), mediasController.register)
-    .get('/', mediasController.getMany)
-    .get('/:id', mediasController.getOne)
+  .use(bearerTokenHandler)
+  .post(
+    "/",
+    authorizeBodyParams({
+      filename: true,
+    }),
+    requireBodyParams({
+      filename: true,
+    }),
+    mediasController.register
+  )
+  .get(
+    "/uploadurl",
+    authorizeQueryParams({
+      filename: true,
+      filekey: true,
+    }),
+    requireQueryParams({
+      filename: true,
+      filekey: true,
+    }),
+    mediasController.getUploadURL
+  )
+  .get(
+    "/downloadurl",
+    authorizeQueryParams({
+      filename: true,
+      filekey: true,
+    }),
+    requireQueryParams({
+      filename: true,
+      filekey: true,
+    }),
+    mediasController.getDownloadURL
+  )
+  .get("/", mediasController.getMany)
+  .get("/:id", mediasController.getOne);
 
 export default mediasRouter;

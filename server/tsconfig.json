@@ -3,7 +3,7 @@
         "module": "commonjs",
         "removeComments": false,
         "sourceMap": true,
-        "target": "ES5",
+        "target": "ES2016",
         "outDir": "build",
         "esModuleInterop": true
     },
