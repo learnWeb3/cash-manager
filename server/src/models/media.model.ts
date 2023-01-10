@@ -1,6 +1,5 @@
 import { Schema, model, HydratedDocument } from "mongoose";
 import { Model } from "mongoose";
-import { join } from "path";
 
 const {
   Types: { String, ObjectId, Number, Boolean },
@@ -19,9 +18,7 @@ export interface MediaModel extends Model<IMedia, {}, MediaMethods> {
   register(filename: string): Promise<MediaDocument>;
 }
 
-export interface MediaVirtuals {
-  path: string;
-}
+export interface MediaVirtuals {}
 export type MediaDocument = HydratedDocument<
   IMedia,
   MediaMethods,
@@ -52,17 +49,12 @@ const MediaSchema = new Schema<
   }
 );
 
-MediaSchema.virtual("path").get(function () {
-  return join(this.id, this.filename);
-});
-
 MediaSchema.static("register", async function (filename: string) {
   try {
     const media = new Media({
       filename,
     });
-    const newMedia = await media.save();
-    return await this.findById(newMedia.id);
+    return await media.save();
   } catch (error) {
     throw new Error(error.message);
   }
