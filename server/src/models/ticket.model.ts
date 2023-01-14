@@ -31,9 +31,7 @@ export interface TicketModel extends Model<ITicket, {}, TicketMethods> {
     user: string;
     products: { id: string; quantity: number }[];
   }): Promise<TicketDocument>;
-  findAllWithProductsAndPrices(filters: {
-    [key: string]: any;
-  }): Promise<TicketDocument[]>;
+  findAllWithProductsAndPrices(periodicity: { start: number; end: number }): Promise<TicketDocument[]>;
   findOneWithUserAndProducts(filters: {
     [key: string]: any;
   }): Promise<TicketDocument>;
@@ -800,61 +798,77 @@ TicketSchema.static(
   }
 );
 
-TicketSchema.static("findAllWithProductsAndPrices", async function () {
-  return await Ticket.aggregate([
-    {
-      $lookup: {
-        from: TicketProduct.collection.name,
-        localField: "_id",
-        foreignField: "ticket",
-        as: "products",
-        pipeline: [
-          {
-            $lookup: {
-              from: Product.collection.name,
-              localField: "product",
-              foreignField: "_id",
-              as: "products",
-            },
-          },
-          {
-            $lookup: {
-              from: ProductPrice.collection.name,
-              localField: "product",
-              foreignField: "product",
-              let: { createdAt: "$createdAt" },
-              pipeline: [
-                {
-                  $match: {
-                    $expr: { $lte: ["$createdAt", "$$createdAt"] },
-                  },
-                },
-                { $sort: { createdAt: -1 } },
-                { $limit: 1 },
-              ],
-              as: "prices",
-            },
-          },
-          {
-            $addFields: {
-              product: {
-                $arrayElemAt: ["$products", 0],
-              },
-              currentPrice: {
-                $arrayElemAt: ["$prices", 0],
-              },
-            },
-          },
-          {
-            $project: {
-              product: 1,
-              currentPrice: 1,
-            },
-          },
-        ],
+TicketSchema.static(
+  "findAllWithProductsAndPrices",
+  async function (periodicity: { start: number; end: number }) {
+    const filterQueryPart = {
+      $match: {
+        createdAt: {
+          $gte: new Date(new Date(periodicity.start).toISOString()),
+          $lte: new Date(new Date(periodicity.end).toISOString()),
+        },
       },
-    },
-  ]).exec();
-});
+    };
+    return await Ticket.aggregate([
+      filterQueryPart,
+      {
+        $lookup: {
+          from: TicketProduct.collection.name,
+          localField: "_id",
+          foreignField: "ticket",
+          as: "products",
+          pipeline: [
+            {
+              $lookup: {
+                from: Product.collection.name,
+                localField: "product",
+                foreignField: "_id",
+                as: "products",
+              },
+            },
+            {
+              $lookup: {
+                from: ProductPrice.collection.name,
+                localField: "product",
+                foreignField: "product",
+                let: { createdAt: "$createdAt" },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: { $lte: ["$createdAt", "$$createdAt"] },
+                    },
+                  },
+                  { $sort: { createdAt: -1 } },
+                  { $limit: 1 },
+                ],
+                as: "prices",
+              },
+            },
+            {
+              $addFields: {
+                product: {
+                  $arrayElemAt: ["$products", 0],
+                },
+                currentPrice: {
+                  $arrayElemAt: ["$prices", 0],
+                },
+              },
+            },
+            {
+              $project: {
+                product: 1,
+                currentPrice: 1,
+                quantity: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $sort: { createdAt: -1 },
+      },
+    ]).exec();
+  }
+);
 
 export const Ticket = model<ITicket, TicketModel>("Ticket", TicketSchema);

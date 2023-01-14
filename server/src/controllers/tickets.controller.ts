@@ -11,7 +11,11 @@ export default {
         })
     },
     getMany: async (req: Request, res: Response, next: NextFunction) => {
-        return Ticket.findAllWithProductsAndPrices(req.params)
+        const periodicity = {
+            start: +req.query.start || Date.now() - (24 * 365 * 60 * 60 * 1000),
+            end: +req.query.end || Date.now() + (24 * 60 * 60 * 1000),
+        }
+        return Ticket.findAllWithProductsAndPrices(periodicity)
             .then((data) => {
                 res.status(200).json(data);
             }).catch((error) => {
