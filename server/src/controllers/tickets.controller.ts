@@ -11,14 +11,7 @@ export default {
         })
     },
     getMany: async (req: Request, res: Response, next: NextFunction) => {
-        return Ticket.find(req.params)
-            .populate({
-                path: 'user'
-            })
-            .populate({
-                path: 'products',
-                populate: 'product'
-            })
+        return Ticket.findAllWithProductsAndPrices(req.params)
             .then((data) => {
                 res.status(200).json(data);
             }).catch((error) => {
