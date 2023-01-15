@@ -20,6 +20,7 @@ export interface Environment {
   GOOGLE_CLIENT_ID: string;
   GOOGLE_PRIVATE_KEY: string;
   GOOGLE_BUCKET_NAME: string;
+  PATH_PREFIX: string;
 }
 
 const environment: Environment = {
@@ -37,6 +38,7 @@ const environment: Environment = {
     .GOOGLE_PRIVATE_KEY as Environment["GOOGLE_PRIVATE_KEY"],
   GOOGLE_BUCKET_NAME: process.env
     .GOOGLE_BUCKET_NAME as Environment["GOOGLE_BUCKET_NAME"],
+  PATH_PREFIX: (process.env.PATH_PREFIX as Environment["PATH_PREFIX"]) || "",
 };
 
 export default environment;

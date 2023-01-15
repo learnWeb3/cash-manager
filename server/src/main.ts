@@ -21,16 +21,9 @@ app.use(cors(options));
 app.use(express.json());
 app.use(express.static("public/upload"));
 
-app.use("/api", router);
+app.use(env.PATH_PREFIX + "/api", router);
 app.get("/", async (req, res, next) => {
-  return res.status(200).json({
-    status: "success",
-    statusCode: 200,
-    statusMessage: "Ok",
-    message:
-      "Welcome to the bank api, please have a look to the documentation in order to get started using our services",
-    path: req.path,
-  });
+  return res.status(200).send();
 });
 app.use(notFoundHandler);
 app.use(errorHandler);

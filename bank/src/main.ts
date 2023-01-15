@@ -5,7 +5,6 @@ import {
   expressJwtOptions,
   jsonBodyParsingOptions,
   parseJWTToken,
-  roleGuard,
 } from "./middlewares/index";
 import transactionRouter from "./routers/transaction.router";
 import userRouter from "./routers/users.router";
@@ -27,18 +26,11 @@ Db.connect()
     app.use(express.json(jsonBodyParsingOptions));
     app.use(jwt(expressJwtOptions).unless({ path: ["/sessions"] }));
     app.use(parseJWTToken());
-    app.use("/sessions", sessionRouter);
-    app.use("/users", userRouter);
-    app.use("/transactions", transactionRouter);
+    app.use(env.PATH_PREFIX + "/sessions", sessionRouter);
+    app.use(env.PATH_PREFIX + "/users", userRouter);
+    app.use(env.PATH_PREFIX + "/transactions", transactionRouter);
     app.get("/", async (req, res, next) => {
-      return res.status(200).json({
-        status: "success",
-        statusCode: 200,
-        statusMessage: "Ok",
-        message:
-          "Welcome to the bank api, please have a look to the documentation in order to get started using our services",
-        path: req.path,
-      });
+      return res.status(200).send();
     });
     app.use(errorHandler);
     app.listen(env.CONTAINER_PORT, "0.0.0.0", () => {
