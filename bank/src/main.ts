@@ -15,20 +15,26 @@ import { Db } from "./services/database.service";
 Db.connect()
   .then((connection) => {
     console.log(`database connection opened at ${env.DATABASE_URI}`);
-
     const app = express();
-
     app.use(
       express.urlencoded({
         extended: false,
       })
     );
     app.use(express.json(jsonBodyParsingOptions));
-    app.use(jwt(expressJwtOptions).unless({ path: ["/", "/sessions"] }));
-    app.use(parseJWTToken());
     app.use(env.PATH_PREFIX + "/sessions", sessionRouter);
-    app.use(env.PATH_PREFIX + "/users", userRouter);
-    app.use(env.PATH_PREFIX + "/transactions", transactionRouter);
+    app.use(
+      env.PATH_PREFIX + "/users",
+      jwt(expressJwtOptions),
+      parseJWTToken(),
+      userRouter
+    );
+    app.use(
+      env.PATH_PREFIX + "/transactions",
+      jwt(expressJwtOptions),
+      parseJWTToken(),
+      transactionRouter
+    );
     app.get("/", async (req, res, next) => {
       return res.status(200).send();
     });
