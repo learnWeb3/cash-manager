@@ -18,7 +18,9 @@ data:
   # 8cfcd9b78345
   session_secret: "OGNmY2Q5Yjc4MzQ1"
   # mongodb+srv://cashmanager:ZmM5OTlkOWQ%3D@database-cluster-svc.default.svc.cluster.local/cashmanager?authSource=admin&replicaSet=database-cluster&ssl=false
-  database_uri: "bW9uZ29kYitzcnY6Ly9jYXNobWFuYWdlcjpabU01T1Rsa09XUSUzREBkYXRhYmFzZS1jbHVzdGVyLXN2Yy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsL2Nhc2htYW5hZ2VyP2F1dGhTb3VyY2U9YWRtaW4mcmVwbGljYVNldD1kYXRhYmFzZS1jbHVzdGVyJnNzbD1mYWxzZQ=="
+  # database_uri: "bW9uZ29kYitzcnY6Ly9jYXNobWFuYWdlcjpabU01T1Rsa09XUSUzREBkYXRhYmFzZS1jbHVzdGVyLXN2Yy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsL2Nhc2htYW5hZ2VyP2F1dGhTb3VyY2U9YWRtaW4mcmVwbGljYVNldD1kYXRhYmFzZS1jbHVzdGVyJnNzbD1mYWxzZQ=="
+  # mongodb+srv://cashmanager:P8Awrc7ZdINAGft9@epitech-cluster.a5zbguu.mongodb.net/cashmanager?retryWrites=true&w=majority
+  database_uri: bW9uZ29kYitzcnY6Ly9jYXNobWFuYWdlcjpQOEF3cmM3WmRJTkFHZnQ5QGVwaXRlY2gtY2x1c3Rlci5hNXpiZ3V1Lm1vbmdvZGIubmV0L2Nhc2htYW5hZ2VyP3JldHJ5V3JpdGVzPXRydWUmdz1tYWpvcml0eQ==
 ---
 # server DEPLOYMENT
 apiVersion: apps/v1
@@ -33,7 +35,7 @@ spec:
       maxSurge: 1
       maxUnavailable: 1
     type: RollingUpdate
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       tier: server

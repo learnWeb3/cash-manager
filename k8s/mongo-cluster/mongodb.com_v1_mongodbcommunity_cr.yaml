@@ -2,24 +2,28 @@
 apiVersion: mongodbcommunity.mongodb.com/v1
 kind: MongoDBCommunity
 metadata:
-  name: bank-database
+  name: database-cluster
 spec:
-  members: 3
+  members: 2
   type: ReplicaSet
   version: "4.2.6"
   security:
     authentication:
       modes: ["SCRAM"]
   users:
-    - name: bankadmin
+    - name: cashmanager
       db: admin
       passwordSecretRef: # a reference to the secret that will be used to generate the user's password
-        name: bank-database-secrets
+        name: database-cluster-secrets
       roles:
         - name: clusterAdmin
           db: admin
         - name: userAdminAnyDatabase
           db: admin
+        - name: dbOwner
+          db: cashmanager
+        - name: dbOwner
+          db: bank
       scramCredentialsSecretName: my-scram
   additionalMongodConfig:
     storage.wiredTiger.engineConfig.journalCompressor: zlib
@@ -30,7 +34,7 @@ spec:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: bank-database-secrets
+  name: database-cluster-secrets
 type: Opaque
 stringData:
   password: ZmM5OTlkOWQ=

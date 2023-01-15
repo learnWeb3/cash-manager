@@ -82,8 +82,6 @@ kubectl get secret <metadata.name>-<auth-db>-<username> -o json | jq -r '.data |
 
 ```bash
 # Examples for current implementations
-# Get the connection string for the cashmanager server
-kubectl get secret cashmanager-database-admin-cashmanagerAdmin -o json | jq -r '.data | with_entries(.value |= @base64d)'
-# Get the connection string for the bank server
-kubectl get secret bank-database-admin-bankAdmin -o json | jq -r '.data | with_entries(.value |= @base64d)'
+# Get the connection string for the database 
+kubectl get secret database-cluster-admin-cashmanager -o json | jq -r '.data | with_entries(.value |= @base64d)'
 ```

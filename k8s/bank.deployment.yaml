@@ -20,7 +20,9 @@ data:
   # 8cfcd9b78345
   jwt_secret: "OGNmY2Q5Yjc4MzQ1"
   # mongodb+srv://cashmanager:ZmM5OTlkOWQ%3D@database-cluster-svc.default.svc.cluster.local/bank?authSource=admin&replicaSet=database-cluster&ssl=false
-  database_uri: "bW9uZ29kYitzcnY6Ly9jYXNobWFuYWdlcjpabU01T1Rsa09XUSUzREBkYXRhYmFzZS1jbHVzdGVyLXN2Yy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsL2Jhbms/YXV0aFNvdXJjZT1hZG1pbiZyZXBsaWNhU2V0PWRhdGFiYXNlLWNsdXN0ZXImc3NsPWZhbHNl"
+  # database_uri: "bW9uZ29kYitzcnY6Ly9jYXNobWFuYWdlcjpabU01T1Rsa09XUSUzREBkYXRhYmFzZS1jbHVzdGVyLXN2Yy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsL2Jhbms/YXV0aFNvdXJjZT1hZG1pbiZyZXBsaWNhU2V0PWRhdGFiYXNlLWNsdXN0ZXImc3NsPWZhbHNl"
+  # mongodb+srv://cashmanager:P8Awrc7ZdINAGft9@epitech-cluster.a5zbguu.mongodb.net/bank?retryWrites=true&w=majority
+  database_uri: bW9uZ29kYitzcnY6Ly9jYXNobWFuYWdlcjpQOEF3cmM3WmRJTkFHZnQ5QGVwaXRlY2gtY2x1c3Rlci5hNXpiZ3V1Lm1vbmdvZGIubmV0L2Jhbms/cmV0cnlXcml0ZXM9dHJ1ZSZ3PW1ham9yaXR5
 ---
 # bank DEPLOYMENT
 apiVersion: apps/v1
@@ -35,7 +37,7 @@ spec:
       maxSurge: 1
       maxUnavailable: 1
     type: RollingUpdate
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       tier: bank
