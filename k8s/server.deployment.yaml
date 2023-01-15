@@ -16,8 +16,8 @@ metadata:
 data:
   # 8cfcd9b78345
   session_secret: "OGNmY2Q5Yjc4MzQ1"
-  # mongodb+srv://cashmanager:ZmM5OTlkOWQ%3D@database-cluster-svc.default.svc.cluster.local/admin?replicaSet=database-cluster&ssl=false
-  database_uri: "bW9uZ29kYitzcnY6Ly9jYXNobWFuYWdlcjpabU01T1Rsa09XUSUzREBkYXRhYmFzZS1jbHVzdGVyLXN2Yy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsL2FkbWluP3JlcGxpY2FTZXQ9ZGF0YWJhc2UtY2x1c3RlciZzc2w9ZmFsc2U="
+  # mongodb+srv://cashmanager:ZmM5OTlkOWQ%3D@database-cluster-svc.default.svc.cluster.local/cashmanager?authSource=admin&replicaSet=database-cluster&ssl=false
+  database_uri: "bW9uZ29kYitzcnY6Ly9jYXNobWFuYWdlcjpabU01T1Rsa09XUSUzREBkYXRhYmFzZS1jbHVzdGVyLXN2Yy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsL2Nhc2htYW5hZ2VyP2F1dGhTb3VyY2U9YWRtaW4mcmVwbGljYVNldD1kYXRhYmFzZS1jbHVzdGVyJnNzbD1mYWxzZQ=="
 ---
 # server DEPLOYMENT
 apiVersion: apps/v1
@@ -32,7 +32,7 @@ spec:
       maxSurge: 1
       maxUnavailable: 1
     type: RollingUpdate
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       tier: server
@@ -43,8 +43,15 @@ spec:
     spec:
       containers:
         - name: server
-          image: epitechregistry.azurecr.io/cash-manager:latest
-          imagePullPolicy: IfNotPresent
+          image: docker.io/antoineleguillou/cash-manager_server:latest
+          imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: 350m
+              memory: 450Mi
+            requests:
+              cpu: 300m
+              memory: 320Mi
           env:
             - name: SESSION_SECRET
               valueFrom:
@@ -69,19 +76,32 @@ spec:
           ports:
             - containerPort: 3000
       restartPolicy: Always
-      imagePullSecrets:
-        - name: epitech-cluster-secret
 ---
 # server SERVICES
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: server
+# spec:
+#   selector:
+#     tier: server
+#   type: ClusterIP
+#   ports:
+#     - port: 3000
+#       targetPort: 3000
+#       name: http
+---
 apiVersion: v1
 kind: Service
 metadata:
   name: server
+  namespace: default
 spec:
+  ports:
+  - port: 3000
+    protocol: TCP
+    targetPort: 3000
   selector:
     tier: server
-  type: ClusterIP
-  ports:
-    - port: 3000
-      targetPort: 3000
-      name: http
+  type: NodePort
+---

@@ -75,6 +75,15 @@ helm install community-operator mongodb/community-operator --set resource.tls.us
 
 kubectl apply -f k8s/mongo-cluster/mongodb.com_v1_mongodbcommunity_cr.yaml
 
-# Get the connection string (mongo uri) to be referenced from app using database cluster
-kubectl get secret database-cluster-admin-cashmanager -o json | jq -r '.data | with_entries(.value |= @base64d)'
+# Get the connection string (mongo uri) to be referenced from app using database cluster (<metadata.name>-<auth-db>-<username>)
+kubectl get secret <metadata.name>-<auth-db>-<username> -o json | jq -r '.data | with_entries(.value |= @base64d)'
+
+```
+
+```bash
+# Examples for current implementations
+# Get the connection string for the cashmanager server
+kubectl get secret cashmanager-database-admin-cashmanagerAdmin -o json | jq -r '.data | with_entries(.value |= @base64d)'
+# Get the connection string for the bank server
+kubectl get secret bank-database-admin-bankAdmin -o json | jq -r '.data | with_entries(.value |= @base64d)'
 ```

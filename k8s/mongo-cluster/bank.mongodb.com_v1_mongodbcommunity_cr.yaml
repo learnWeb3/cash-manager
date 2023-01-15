@@ -2,7 +2,7 @@
 apiVersion: mongodbcommunity.mongodb.com/v1
 kind: MongoDBCommunity
 metadata:
-  name: database-cluster
+  name: bank-database
 spec:
   members: 3
   type: ReplicaSet
@@ -11,10 +11,10 @@ spec:
     authentication:
       modes: ["SCRAM"]
   users:
-    - name: cashmanager
+    - name: bankadmin
       db: admin
       passwordSecretRef: # a reference to the secret that will be used to generate the user's password
-        name: database-cluster-secrets
+        name: bank-database-secrets
       roles:
         - name: clusterAdmin
           db: admin
@@ -30,8 +30,7 @@ spec:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: database-cluster-secrets
+  name: bank-database-secrets
 type: Opaque
 stringData:
   password: ZmM5OTlkOWQ=
-
