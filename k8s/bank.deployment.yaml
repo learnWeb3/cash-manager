@@ -81,7 +81,7 @@ spec:
             - name: PATH_PREFIX
               valueFrom:
                 configMapKeyRef:
-                  name: server-configmap
+                  name: bank-configmap
                   key: path_prefix
             - name: JWT_SECRET
               valueFrom:
