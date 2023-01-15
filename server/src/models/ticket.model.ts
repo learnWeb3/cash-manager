@@ -8,6 +8,7 @@ import { ProductPrice } from "./product-price.model";
 import { ObjectId } from "mongoose";
 import { InventoryProduct } from "./inventory-product.model";
 import { ProductCategory } from "./product-category.model";
+import { TimeSerie } from "../services/timeseries/TimeSerie";
 
 const {
   Types: { String, ObjectId, Number, Boolean },
@@ -31,7 +32,10 @@ export interface TicketModel extends Model<ITicket, {}, TicketMethods> {
     user: string;
     products: { id: string; quantity: number }[];
   }): Promise<TicketDocument>;
-  findAllWithProductsAndPrices(periodicity: { start: number; end: number }): Promise<TicketDocument[]>;
+  findAllWithProductsAndPrices(periodicity: {
+    start: number;
+    end: number;
+  }): Promise<TicketDocument[]>;
   findOneWithUserAndProducts(filters: {
     [key: string]: any;
   }): Promise<TicketDocument>;
@@ -323,19 +327,19 @@ TicketSchema.static(
           quantity: 1,
         },
       },
-      {
-        $densify: {
-          field: "createdAt",
-          range: {
-            step: 1,
-            unit: "hour",
-            bounds: [
-              filterQueryPart.$match.createdAt.$gte,
-              filterQueryPart.$match.createdAt.$lte,
-            ],
-          },
-        },
-      },
+      // {
+      //   $densify: {
+      //     field: "createdAt",
+      //     range: {
+      //       step: 1,
+      //       unit: "hour",
+      //       bounds: [
+      //         filterQueryPart.$match.createdAt.$gte,
+      //         filterQueryPart.$match.createdAt.$lte,
+      //       ],
+      //     },
+      //   },
+      // },
       {
         $lookup: {
           from: ProductPrice.collection.name,
@@ -719,7 +723,15 @@ TicketSchema.static(
     const periodTotalInventoryBuySum = await this.getTotalInventoryBuySum(
       filterQueryPart
     );
-    const daylyPeriodRevenue = await this.getDailyRevenue(filterQueryPart);
+    const daylyPeriodRevenue = await this.getDailyRevenue(filterQueryPart).then(
+      (data) =>
+        TimeSerie.densifyDaily(
+          new Date(periodicity.start),
+          new Date(periodicity.end),
+          data
+        )
+    );
+
     const productsRankedBySalesVolume =
       await this.getProductsRankedBySalesVolume(filterQueryPart);
     const productsRankedBySalesValue = await this.getProductsRankedBySalesValue(
