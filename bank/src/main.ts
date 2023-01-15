@@ -24,7 +24,7 @@ Db.connect()
       })
     );
     app.use(express.json(jsonBodyParsingOptions));
-    app.use(jwt(expressJwtOptions).unless({ path: ["/sessions"] }));
+    app.use(jwt(expressJwtOptions).unless({ path: ["/", "/sessions"] }));
     app.use(parseJWTToken());
     app.use(env.PATH_PREFIX + "/sessions", sessionRouter);
     app.use(env.PATH_PREFIX + "/users", userRouter);
