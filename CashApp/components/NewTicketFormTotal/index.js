@@ -180,7 +180,7 @@ export const NewTicketFormTotal = ({
   }, [tag, ticketStatus, ticketProducts]);
 
   return (
-    <NFCManager setTag={setTag}>
+    <NFCManager inputRef={inputRef} setTag={setTag}>
       {ticketStatus === allTicketsStatus.PAID ? (
         <PaymentSuccess onClose={handleResetTicket} />
       ) : null}
