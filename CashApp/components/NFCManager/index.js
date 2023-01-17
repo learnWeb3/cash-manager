@@ -1,27 +1,29 @@
-import * as React from "react";
 import NfcManager, { Ndef, NfcEvents } from "react-native-nfc-manager";
 
-NfcManager.start();
-
-export const NFCManager = ({
-  inpuRef = null,
-  children = null,
-  setTag = () => {},
-}) => {
-  React.useEffect(() => {
-
+export function listenToNfcEventOnce() {
+  const cleanUp = () => {
     NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
+    NfcManager.setEventListener(NfcEvents.SessionClosed, null);
+  };
+
+  return new Promise((resolve) => {
+    let tagFound = null;
+
     NfcManager.setEventListener(NfcEvents.DiscoverTag, (tag) => {
       const message = Ndef.text.decodePayload(tag.ndefMessage[0].payload);
       const messageWithoutLanguageCode = message.replace(/^en(.*)$/, "$1");
-      setTag(messageWithoutLanguageCode);
+      tagFound = messageWithoutLanguageCode;
+      resolve(messageWithoutLanguageCode);
+      NfcManager.unregisterTagEvent();
     });
 
-    NfcManager.registerTagEvent({ invalidateAfterFirstRead: false });
-    return () => {
-      NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
-    };
-  }, [inpuRef]);
+    NfcManager.setEventListener(NfcEvents.SessionClosed, () => {
+      cleanUp();
+      if (!tagFound) {
+        resolve();
+      }
+    });
 
-  return <>{children}</>;
-};
+    NfcManager.registerTagEvent();
+  });
+}

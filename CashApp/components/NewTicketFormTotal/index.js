@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
-import { NFCManager } from "../NFCManager/index";
+import { listenToNfcEventOnce, NFCManager } from "../NFCManager/index";
 import { InputGroupScan } from "../InputGroupScan";
 import {
   login,
@@ -81,6 +81,7 @@ export const NewTicketFormTotal = ({
 
   async function handlePay() {
     setTicketStatus(allTicketsStatus.AWAITING_PAYMENT);
+    listenToNfcEventOnce().then((tag) => setTag(tag));
   }
 
   const handleResetTicket = () => {
@@ -180,7 +181,7 @@ export const NewTicketFormTotal = ({
   }, [tag, ticketStatus, ticketProducts]);
 
   return (
-    <NFCManager inputRef={inputRef} setTag={setTag}>
+    <>
       {ticketStatus === allTicketsStatus.PAID ? (
         <PaymentSuccess onClose={handleResetTicket} />
       ) : null}
@@ -375,7 +376,7 @@ export const NewTicketFormTotal = ({
           </>
         )}
       </View>
-    </NFCManager>
+    </>
   );
 };
 
