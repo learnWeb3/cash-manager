@@ -13,13 +13,13 @@ import { InputGroupScan } from "../InputGroupScan";
 import { PhotoGalleryEditor } from "../PhotoGalleryEditor";
 import {
   getProducts,
-  linkMedias,
-  registerInventory,
+  // linkMedias,
+  // registerInventory,
   registerProduct,
-  unlinkMedias,
+  // unlinkMedias,
   updateProduct,
   updateProductPrice,
-  uploadFile,
+  // uploadFile,
 } from "../../http/cash-manager.api";
 import { setProducts } from "../../stores/reducers/productsReducer";
 import { env } from "../../env";
@@ -42,11 +42,11 @@ const NewProductForm = ({ product = null }) => {
 
   const [currentProductUnit, setCurrentProductUnit] = React.useState(null);
 
-  const [quantity, setQuantity] = React.useState({
-    isError: true,
-    value: product ? product.currentStock : 0,
-    errors: validateGreaterThanZero("quantity", "").errors,
-  });
+  // const [quantity, setQuantity] = React.useState({
+  //   isError: true,
+  //   value: product ? product.currentStock : 0,
+  //   errors: validateGreaterThanZero("quantity", "").errors,
+  // });
 
   const [price, setPrice] = React.useState({
     isError: true,
@@ -259,20 +259,20 @@ const NewProductForm = ({ product = null }) => {
         );
 
         // stocks onnly on creation of product
-        if (!product) {
-          await registerInventory(
-            {
-              user: currentUser.user,
-              products: [
-                {
-                  id: updatedProduct.id,
-                  quantity: parseFloat(quantity.value),
-                },
-              ],
-            },
-            currentUser.accessToken
-          );
-        }
+        // if (!product) {
+        //   await registerInventory(
+        //     {
+        //       user: currentUser.user,
+        //       products: [
+        //         {
+        //           id: updatedProduct.id,
+        //           quantity: parseFloat(quantity.value),
+        //         },
+        //       ],
+        //     },
+        //     currentUser.accessToken
+        //   );
+        // }
 
         // medias
         // await updateProductMedias(
@@ -353,15 +353,15 @@ const NewProductForm = ({ product = null }) => {
     });
   };
 
-  const handleQuantity = (quantity) => {
-    const { isValid: quantityIsValid, errors: quantityValidationsErrors } =
-      validateGreaterThanZero("quantity", quantity);
-    setQuantity({
-      isError: !quantityIsValid,
-      value: quantity,
-      errors: quantityValidationsErrors,
-    });
-  };
+  // const handleQuantity = (quantity) => {
+  //   const { isValid: quantityIsValid, errors: quantityValidationsErrors } =
+  //     validateGreaterThanZero("quantity", quantity);
+  //   setQuantity({
+  //     isError: !quantityIsValid,
+  //     value: quantity,
+  //     errors: quantityValidationsErrors,
+  //   });
+  // };
 
   const handleDescription = (description) => {
     const {
@@ -406,7 +406,7 @@ const NewProductForm = ({ product = null }) => {
           handleInput={(price) => handlePrice(price)}
         />
 
-        {!product ? (
+        {/* {!product ? (
           <InputGroup
             label={"Quantity"}
             isError={quantity.isError}
@@ -414,7 +414,7 @@ const NewProductForm = ({ product = null }) => {
             value={`${quantity.value}`}
             handleInput={(quantity) => handleQuantity(quantity)}
           />
-        ) : null}
+        ) : null} */}
 
         <InputGroupScan
           label={"ref"}

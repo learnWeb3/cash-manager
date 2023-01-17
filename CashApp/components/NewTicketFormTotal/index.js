@@ -160,6 +160,7 @@ export const NewTicketFormTotal = ({
       try {
         const { key, id } = JSON.parse(tag);
         processPayment(key, id).then(() => {
+          setTag("");
           setPaymentTimeoutRef(null);
           paymentTimeoutRef && clearTimeout(paymentTimeoutRef);
         });
