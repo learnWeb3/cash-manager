@@ -29,8 +29,7 @@ httpApi.interceptors.response.use(
           refreshToken: currentUser.refreshToken,
         })
           .then((data) => {
-
-            console.log(data)
+            console.log(data);
             const { refreshToken, accessToken } = data.session;
             currentUser.refreshToken = refreshToken;
             currentUser.accessToken = accessToken;
@@ -72,6 +71,28 @@ export const login = async (data = { email: "", password: "" }) => {
 export const refreshToken = async (data = { refreshToken: "" }) => {
   return await httpApi
     .post("/auth/refreshToken", data)
+    .then((response) => response.data);
+};
+
+export const getUser = async (id = "", token = "") => {
+  return await mergeAuthHeaders(httpApi, token)
+    .get(`/users/${id}`)
+    .then((response) => response.data);
+};
+
+export const updateUser = async (
+  id = "",
+  token = "",
+  data = {
+    firstName: true,
+    lastName: true,
+    email: true,
+    password: true,
+    currentPassword: true,
+  }
+) => {
+  return await mergeAuthHeaders(httpApi, token)
+    .patch(`/users/${id}`, data)
     .then((response) => response.data);
 };
 

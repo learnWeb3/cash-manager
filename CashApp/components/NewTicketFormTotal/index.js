@@ -336,8 +336,11 @@ export const NewTicketFormTotal = ({
                   <Button onPress={handlePay} mode="contained">
                     Pay
                   </Button>
-                ) : ticketStatus === allTicketsStatus.AWAITING_PAYMENT ||
-                  ticketStatus === allTicketsStatus.PAYMENT_PROCESSING ? (
+                ) : ticketStatus === allTicketsStatus.AWAITING_PAYMENT ? (
+                  <NFCManager setTag={setTag}>
+                    <ActivityIndicator />
+                  </NFCManager>
+                ) : ticketStatus === allTicketsStatus.PAYMENT_PROCESSING ? (
                   <ActivityIndicator />
                 ) : ticketStatus === allTicketsStatus.PAID ? (
                   <Ionicons

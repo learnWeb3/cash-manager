@@ -1,7 +1,7 @@
 import * as React from "react";
 import { View, StyleSheet } from "react-native";
 import { Button, Text } from "react-native-paper";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   validateEmail,
   validatePassword,
@@ -9,22 +9,26 @@ import {
 } from "../../validators/index";
 import InputGroup from "../InputGroup/index";
 import { useAlert } from "../../hooks/alert";
-import { updateProfileInformations } from "../../http/cash-manager.api";
-import { setCurrentUser } from "../../stores/reducers/currentUserReducer";
+import { getUser, updateUser } from "../../http/cash-manager.api";
 
 const ProfileForm = () => {
-  const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.currentUser.value);
   const { alert, setAlert, component: Snackbar } = useAlert();
+  
   const [email, setEmail] = React.useState({
     isError: true,
     value: "",
     errors: validateEmail("email", "").errors,
   });
-  const [username, setUsername] = React.useState({
+  const [firstName, setFirstName] = React.useState({
     isError: true,
     value: "",
-    errors: validateRequired("username", "").errors,
+    errors: validateRequired("firstName", "").errors,
+  });
+  const [lastName, setLastName] = React.useState({
+    isError: true,
+    value: "",
+    errors: validateRequired("lastName", "").errors,
   });
   const [password, setPassword] = React.useState({
     isError: true,
@@ -32,19 +36,33 @@ const ProfileForm = () => {
     errors: validatePassword("password", "").errors,
   });
 
+  const [currentPassword, setCurrentPassword] = React.useState({
+    isError: true,
+    value: "",
+    errors: validatePassword("currentPassword", "").errors,
+  });
+
   React.useEffect(() => {
     if (currentUser) {
-      // console.log(currentUser)
-      // setEmail({
-      //     errors: [],
-      //     isError: false,
-      //     value: currentUser.user.email
-      // })
-      // setUsername({
-      //     errors: [],
-      //     isError: false,
-      //     value: currentUser.user.username
-      // })
+      getUser(currentUser.user, currentUser.accessToken).then((data) => {
+        setEmail({
+          isError: false,
+          value: data.user.email.address,
+          errors: [],
+        });
+
+        setFirstName({
+          isError: false,
+          value: data.user.name.first,
+          errors: [],
+        });
+
+        setLastName({
+          isError: false,
+          value: data.user.name.last,
+          errors: [],
+        });
+      });
     }
   }, [currentUser]);
 
@@ -54,20 +72,37 @@ const ProfileForm = () => {
     const data = {
       email: email.value,
       password: password.value,
-      username: username.value,
+      firstName: firstName.value,
+      lastName: lastName.value,
+      currentPassword: currentPassword.value,
     };
 
     try {
       if (currentUser) {
-        // const {data:updatedUser} = await updateProfileInformations(currentUser.token, currentUser.user.id, data)
-        // dispatch(
-        //     setCurrentUser({
-        //         user: updatedUser,
-        //         token: currentUser.token
-        //     })
-        // )
-        // message = "Profile updated with success";
-        // severity = "success";
+        await updateUser(currentUser.user, currentUser.accessToken, data);
+        await getUser(currentUser.user, currentUser.accessToken).then(
+          (data) => {
+            setEmail({
+              isError: false,
+              value: data.user.email.address,
+              errors: [],
+            });
+
+            setFirstName({
+              isError: false,
+              value: data.user.name.first,
+              errors: [],
+            });
+
+            setLastName({
+              isError: false,
+              value: data.user.name.last,
+              errors: [],
+            });
+          }
+        );
+        message = "Profile updated with success";
+        severity = "success";
       } else {
         throw new Error(
           "current user must be set to perform authenticated http request"
@@ -105,13 +140,33 @@ const ProfileForm = () => {
     });
   };
 
-  const handleUsername = (username) => {
-    const { isValid: usernameIsValid, errors: usernameValidationsErrors } =
-      validateRequired("username", username);
-    setUsername({
-      isError: !usernameIsValid,
-      value: username,
-      errors: usernameValidationsErrors,
+  const handleCurrentPassword = (password) => {
+    const { isValid: passwordIsValid, errors: passwordValidationsErrors } =
+      validatePassword("password", password);
+    setCurrentPassword({
+      isError: !passwordIsValid,
+      value: password,
+      errors: passwordValidationsErrors,
+    });
+  };
+
+  const handleFirstName = (firstName) => {
+    const { isValid: firstNameIsValid, errors: firstNameValidationsErrors } =
+      validateRequired("firstName", firstName);
+    setFirstName({
+      isError: !firstNameIsValid,
+      value: firstName,
+      errors: firstNameValidationsErrors,
+    });
+  };
+
+  const handleLastName = (lastName) => {
+    const { isValid: lastNameIsValid, errors: lastNameValidationsErrors } =
+      validateRequired("lastName", lastName);
+    setLastName({
+      isError: !lastNameIsValid,
+      value: lastName,
+      errors: lastNameValidationsErrors,
     });
   };
 
@@ -131,11 +186,19 @@ const ProfileForm = () => {
         </Text>
 
         <InputGroup
-          label={"Username"}
-          isError={username.isError}
-          errors={username.errors}
-          value={username.value}
-          handleInput={(username) => handleUsername(username)}
+          label={"Firstname"}
+          isError={firstName.isError}
+          errors={firstName.errors}
+          value={firstName.value}
+          handleInput={(firstName) => handleFirstName(firstName)}
+        />
+
+        <InputGroup
+          label={"Lastname"}
+          isError={lastName.isError}
+          errors={lastName.errors}
+          value={lastName.value}
+          handleInput={(lastName) => handleLastName(lastName)}
         />
 
         <InputGroup
@@ -155,8 +218,23 @@ const ProfileForm = () => {
           secureTextEntry={true}
         />
 
+        <InputGroup
+          label={"Current password"}
+          isError={currentPassword.isError}
+          errors={currentPassword.errors}
+          value={currentPassword.value}
+          handleInput={(password) => handleCurrentPassword(password)}
+          secureTextEntry={true}
+        />
+
         <Button
-          disabled={username.isError || email.isError || password.isError}
+          disabled={
+            firstName.isError ||
+            lastName.isError ||
+            email.isError ||
+            password.isError ||
+            currentPassword.isError
+          }
           mode="contained"
           onPress={handleSubmit}
         >
@@ -180,7 +258,7 @@ const styles = StyleSheet.create({
   },
   container: {
     width: "100%",
-    height: '100%',
+    height: "100%",
     padding: 24,
     backgroundColor: "#FFF",
   },

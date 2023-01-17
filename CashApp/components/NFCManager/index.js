@@ -6,7 +6,6 @@ NfcManager.start();
 export const NFCManager = ({ children = null, setTag = () => {} }) => {
   React.useEffect(() => {
     NfcManager.setEventListener(NfcEvents.DiscoverTag, (tag) => {
-      NfcManager.unregisterTagEvent();
       const message = Ndef.text.decodePayload(tag.ndefMessage[0].payload);
       const messageWithoutLanguageCode = message.replace(/^en(.*)$/, "$1");
       setTag(messageWithoutLanguageCode);
