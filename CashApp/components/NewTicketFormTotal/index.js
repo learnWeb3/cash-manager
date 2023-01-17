@@ -152,7 +152,7 @@ export const NewTicketFormTotal = ({
   }, [ticketStatus]);
 
   React.useEffect(() => {
-    if (tag) {
+    if (tag && ticketStatus === allTicketsStatus.AWAITING_PAYMENT) {
       // read nfc tag containing account id customer and private key customer
       // const key =
       //   "7k9X1n9K+rO+Dl+pgxyaek6fylBO2qHq7vgEa09Jy/LUYHB2dQ1Ec/5eQayhkmuWFzUMcwqcAoT1MuHqU+9fCg==";
@@ -177,10 +177,10 @@ export const NewTicketFormTotal = ({
         clearTimeout(paymentTimeoutRef);
       }
     };
-  }, [tag]);
+  }, [tag, ticketStatus]);
 
   return (
-    <>
+    <NFCManager setTag={setTag}>
       {ticketStatus === allTicketsStatus.PAID ? (
         <PaymentSuccess onClose={handleResetTicket} />
       ) : null}
@@ -262,10 +262,10 @@ export const NewTicketFormTotal = ({
                 ) : (
                   <View style={styles.action}>
                     {ticketStatus === allTicketsStatus.AWAITING_PAYMENT ? (
-                      <NFCManager setTag={setTag}>
+                      <>
                         <ActivityIndicator size={64} />
                         <Text style={{ marginTop: 16 }}>Awaiting payment</Text>
-                      </NFCManager>
+                      </>
                     ) : ticketStatus === allTicketsStatus.PAYMENT_PROCESSING ? (
                       <>
                         <ActivityIndicator size={64} />
@@ -338,9 +338,7 @@ export const NewTicketFormTotal = ({
                     Pay
                   </Button>
                 ) : ticketStatus === allTicketsStatus.AWAITING_PAYMENT ? (
-                  <NFCManager setTag={setTag}>
-                    <ActivityIndicator />
-                  </NFCManager>
+                  <ActivityIndicator />
                 ) : ticketStatus === allTicketsStatus.PAYMENT_PROCESSING ? (
                   <ActivityIndicator />
                 ) : ticketStatus === allTicketsStatus.PAID ? (
@@ -377,7 +375,7 @@ export const NewTicketFormTotal = ({
           </>
         )}
       </View>
-    </>
+    </NFCManager>
   );
 };
 
