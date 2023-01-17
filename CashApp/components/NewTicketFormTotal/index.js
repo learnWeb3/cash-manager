@@ -177,7 +177,7 @@ export const NewTicketFormTotal = ({
         clearTimeout(paymentTimeoutRef);
       }
     };
-  }, [tag, ticketStatus]);
+  }, [tag, ticketStatus, ticketProducts]);
 
   return (
     <NFCManager setTag={setTag}>

@@ -10,9 +10,9 @@ export const NFCManager = ({ children = null, setTag = () => {} }) => {
     });
 
     NfcManager.registerTagEvent({ invalidateAfterFirstRead: false });
-    return () => {
-      NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
-    };
+    // return () => {
+    //   NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
+    // };
   }, []);
 
   return <>{children}</>;
