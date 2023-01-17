@@ -116,7 +116,8 @@ userSchema.statics.ammendOne = async function (
 
   if (data.email) {
     Object.assign(user, {
-      email: data.email,
+      ...user.email,
+      address: data.email,
     });
   }
   if (data.firstName) {

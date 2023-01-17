@@ -1,5 +1,5 @@
 import * as React from "react";
-import { View, StyleSheet } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
 import { Button, Text } from "react-native-paper";
 import { useSelector } from "react-redux";
 import {
@@ -14,7 +14,7 @@ import { getUser, updateUser } from "../../http/cash-manager.api";
 const ProfileForm = () => {
   const currentUser = useSelector((state) => state.currentUser.value);
   const { alert, setAlert, component: Snackbar } = useAlert();
-  
+
   const [email, setEmail] = React.useState({
     isError: true,
     value: "",
@@ -109,6 +109,7 @@ const ProfileForm = () => {
         );
       }
     } catch (error) {
+      console.log(error)
       message =
         "An unexpected error has been encountered, please try again later or contact tour administrator";
     } finally {
@@ -180,7 +181,7 @@ const ProfileForm = () => {
 
   return (
     <>
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
         <Text style={styles.header} variant="headlineMedium">
           User details
         </Text>
@@ -240,7 +241,7 @@ const ProfileForm = () => {
         >
           ok
         </Button>
-      </View>
+      </ScrollView>
 
       <Snackbar
         onClose={handleCloseAlert}
