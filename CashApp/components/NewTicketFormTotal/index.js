@@ -80,7 +80,9 @@ export const NewTicketFormTotal = ({
   }
 
   async function handlePay() {
-    listenToNfcEventOnce().then((tag) => setTag(tag));
+    listenToNfcEventOnce()
+      .then((tag) => setTag(tag))
+      .catch((error) => setTicketStatus(allTicketsStatus.PAYMENT_ERROR));
     setTicketStatus(allTicketsStatus.AWAITING_PAYMENT);
   }
 

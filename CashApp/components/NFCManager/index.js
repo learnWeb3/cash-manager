@@ -1,12 +1,12 @@
 import NfcManager, { Ndef, NfcEvents } from "react-native-nfc-manager";
 
-export function listenToNfcEventOnce() {
+export async function listenToNfcEventOnce() {
   const cleanUp = () => {
     NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
     NfcManager.setEventListener(NfcEvents.SessionClosed, null);
   };
 
-  return new Promise((resolve) => {
+  return await new Promise((resolve, reject) => {
     let tagFound = null;
 
     NfcManager.setEventListener(NfcEvents.DiscoverTag, (tag) => {
@@ -20,7 +20,7 @@ export function listenToNfcEventOnce() {
     NfcManager.setEventListener(NfcEvents.SessionClosed, () => {
       cleanUp();
       if (!tagFound) {
-        resolve();
+        reject(new Error("Unregister nfc events, session closed tag not found"));
       }
     });
 
